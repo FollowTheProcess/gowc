@@ -7,10 +7,12 @@ before:
 builds:
   - id: gowc
     dir: "."
-    main: main.go
+    main: "."
     binary: gowc
     ldflags:
       - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
     env:
       - CGO_ENABLED=0
     goos:
