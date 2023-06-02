@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v0.10.3
+_src_path: gh:FollowTheProcess/go_copier
+author_email: tomfleet2018@gmail.com
+author_name: Tom Fleet
+create_github_repo: true
+description: Toy clone of coreutils wc in Go
+github_url: https://github.com/FollowTheProcess/gowc
+github_username: FollowTheProcess
+initialise_git_repo: true
+license: MIT License
+project_name: gowc
+project_slug: gowc
+project_type: binary
