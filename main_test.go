@@ -170,11 +170,14 @@ func TestCountFile(t *testing.T) {
 		t.Fatalf("Reading from moby dick returned an error: %s", stderr.String())
 	}
 
-	got := strings.ReplaceAll(stdout.String(), "\t", "")
+	// Windows is stupid and it doesn't even have wc anyway so
+	if runtime.GOOS != "windows" {
+		got := stdout.String()
 
-	want := fmt.Sprintf("FileBytesCharsLinesWords\n%s1232922123292223243214132\n", mobyDick)
+		want := fmt.Sprintf("File\t\t\t\t\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n", mobyDick)
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+		if got != want {
+			t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+		}
 	}
 }
