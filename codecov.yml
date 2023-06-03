@@ -1,0 +1,4 @@
+ignore:
+  # This is actually tested in main_test.go, but by compiling the program and executing the compiled version
+  # in the tests with various args, which the go coverage tool can't pick up on
+  - main.go
