@@ -171,6 +171,9 @@ func TestCountFile(t *testing.T) {
 	}
 
 	// Windows is stupid and it doesn't even have wc anyway so
+	// There's a different number of tabs on windows and the line counts
+	// can be different by the looks of it. I don't actually care about windows
+	// really so this can go die in a hole
 	if runtime.GOOS != "windows" {
 		got := stdout.String()
 
