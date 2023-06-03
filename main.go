@@ -71,7 +71,7 @@ func run() error {
 		if !((info.Mode() & os.ModeCharDevice) == 0) {
 			return fmt.Errorf("nothing to read from stdin")
 		}
-		result, err := count.Count(file, "stdin")
+		result, err := count.One(file, "stdin")
 		if err != nil {
 			return err
 		}
@@ -84,26 +84,15 @@ func run() error {
 			return fmt.Errorf("failed to open %s: %w", path, err)
 		}
 		defer file.Close()
-		result, err := count.Count(file, path)
+		result, err := count.One(file, path)
 		if err != nil {
 			return err
 		}
 		return result.Display(os.Stdout, *jsonFlag)
 	default:
-		// TODO: Naively do it synchrously for now, should be parallel though
-		// preferably in a worker pool so we don't exceed number of open file limits
-		results := make(count.Results, 0, flag.NArg())
-		for _, file := range flag.Args() {
-			f, err := os.Open(file)
-			if err != nil {
-				return fmt.Errorf("failed to open %s: %w", file, err)
-			}
-			defer f.Close()
-			result, err := count.Count(f, file)
-			if err != nil {
-				return err
-			}
-			results = append(results, result)
+		results, err := count.All(flag.Args())
+		if err != nil {
+			return err
 		}
 
 		return results.Display(os.Stdout, *jsonFlag)

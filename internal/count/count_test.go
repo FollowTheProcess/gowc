@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 
@@ -95,7 +96,7 @@ func TestCount(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := count.Count(tt.in, "")
+			got, err := count.One(tt.in, "")
 			if err != nil {
 				t.Fatalf("count returned an unexpected error: %v", err)
 			}
@@ -104,6 +105,50 @@ func TestCount(t *testing.T) {
 				t.Errorf("\nGot:\t%+v\nWanted:\t%+v\n", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestCountAll(t *testing.T) {
+	files := []string{
+		filepath.Join("testdata", "moby_dick.txt"),
+		filepath.Join("testdata", "another.txt"),
+		filepath.Join("testdata", "onemore.txt"),
+	}
+
+	results, err := count.All(files)
+	if err != nil {
+		t.Fatalf("count.All returned an error: %v", err)
+	}
+
+	want := count.Results{
+		{
+			Name:  "testdata/another.txt",
+			Bytes: 608,
+			Chars: 608,
+			Lines: 2,
+			Words: 80,
+		},
+		{
+			Name:  "testdata/onemore.txt",
+			Bytes: 460,
+			Chars: 460,
+			Lines: 2,
+			Words: 63,
+		},
+		{
+			Name:  "testdata/moby_dick.txt",
+			Bytes: 1232922,
+			Chars: 1232922,
+			Lines: 23243,
+			Words: 214132,
+		},
+	}
+
+	sort.Stable(ByName(results))
+	sort.Stable(ByName(want))
+
+	if !sliceEqual(results, want) {
+		t.Errorf("\nGot:\t%+v\nWanted:\t%+v", results, want)
 	}
 }
 
@@ -242,9 +287,29 @@ func BenchmarkCount(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := count.Count(r, "bench")
+		_, err := count.One(r, "bench")
 		if err != nil {
 			b.Fatalf("Count returned an error: %v", err)
 		}
 	}
 }
+
+func sliceEqual[T comparable](a, b []T) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i, item := range a {
+		if b[i] != item {
+			return false
+		}
+	}
+
+	return true
+}
+
+type ByName []count.Result
+
+func (a ByName) Len() int           { return len(a) }
+func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }

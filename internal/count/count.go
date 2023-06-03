@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"runtime"
+	"sync"
 	"text/tabwriter"
 )
 
@@ -67,8 +70,8 @@ func (r Results) Display(w io.Writer, jsonFlag bool) error {
 	return tab.Flush()
 }
 
-// Count performs a counting operation on in, returning the result and any error.
-func Count(in io.Reader, name string) (Result, error) {
+// One performs a counting operation on a single reader, returning the result and any error.
+func One(in io.Reader, name string) (Result, error) {
 	var (
 		lc LineCounter
 		bc ByteCounter
@@ -92,6 +95,77 @@ func Count(in io.Reader, name string) (Result, error) {
 		Words: uint64(wc),
 		Chars: uint64(cc),
 	}, nil
+}
+
+// All performs counting operations on multiple files concurrently
+// gathering up the results and returning.
+func All(files []string) (Results, error) {
+	jobs := make(chan string)
+	counts := make(chan Result)
+
+	// Keep a waitgroup so we know when all the workers are done
+	var wg sync.WaitGroup
+
+	// Launch a concurrent worker pool to chew through the queue of files to hash
+	// these will all initially block as no files are on the jobs channel yet
+	// nWorkers is min of NumCPU and len(files) so we don't start more workers than
+	// is necessary (no point kicking off 8 workers to do 3 files for example)
+	nWorkers := min(runtime.NumCPU(), len(files))
+	for i := 0; i < nWorkers; i++ {
+		wg.Add(1)
+		go worker(counts, jobs, &wg)
+	}
+
+	// Load files onto the jobs channel, this is a goroutine so it
+	// doesnt block the main goroutine as channel cap is 0
+	go func() {
+		for _, file := range files {
+			jobs <- file
+		}
+		close(jobs)
+	}()
+
+	// Wait for all the workers to finish in another goroutine, again so it
+	// doesn't block the main routine, and close counts channel when done
+	go func(wg *sync.WaitGroup) {
+		wg.Wait()
+		close(counts)
+	}(&wg)
+
+	results := make(Results, 0, len(files))
+
+	// Finally, range over the counts channel until it gets closed by the
+	// goroutine above, adding each result to the list of results to be returned
+	for count := range counts {
+		results = append(results, count)
+	}
+
+	return results, nil
+}
+
+// worker is a concurrent worker contributing to counting in files,
+// it pulls files off the jobs channel, counts things in them, and puts
+// it's results on the counts channel. It takes a reference to a WaitGroup
+// so we can be sure all workers have finished before closing the counts channel.
+func worker(counts chan<- Result, files <-chan string, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for file := range files {
+		f, err := os.Open(file)
+		if err != nil {
+			// If we can't open the file, just put an empty count on the results
+			// channel and move on
+			// TODO: Could probably improve this
+			counts <- Result{Name: file}
+			continue
+		}
+		result, err := One(f, file)
+		if err != nil {
+			// Same as above
+			counts <- Result{Name: file}
+			continue
+		}
+		counts <- result
+	}
 }
 
 // Write implements [io.Writer] for LineCounter.
@@ -146,4 +220,12 @@ func (c *CharCounter) Write(data []byte) (int, error) {
 		*c++
 	}
 	return len(data), nil
+}
+
+// min returns the minimum of 2 ints.
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
