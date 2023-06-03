@@ -203,6 +203,40 @@ func TestCountFile(t *testing.T) {
 	}
 }
 
+func TestCountFiles(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+
+	cmdPath := filepath.Join(dir, binName)
+	testdata := filepath.Join(dir, "internal", "count", "testdata")
+	files := []string{
+		filepath.Join(testdata, "moby_dick.txt"),
+		filepath.Join(testdata, "another.txt"),
+		filepath.Join(testdata, "onemore.txt"),
+	}
+
+	cmd := exec.Command(cmdPath, files...)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err = cmd.Run(); err != nil {
+		t.Fatalf("Reading from files returned an error: %s", stderr.String())
+	}
+
+	got := stdout.String()
+
+	want := fmt.Sprintf("File\t\t\t\t\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n%s\t608\t608\t2\t80\n%s\t460\t460\t2\t63\n", files[0], files[1], files[2])
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
 func TestCountFileJSON(t *testing.T) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -226,6 +260,41 @@ func TestCountFileJSON(t *testing.T) {
 	got := strings.TrimSpace(stdout.String())
 
 	want := fmt.Sprintf(`{"name":"%s","lines":23243,"bytes":1232922,"words":214132,"chars":1232922}`, mobyDick)
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
+func TestCountFilesJSON(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+
+	cmdPath := filepath.Join(dir, binName)
+	testdata := filepath.Join(dir, "internal", "count", "testdata")
+	args := []string{
+		"-json",
+		filepath.Join(testdata, "moby_dick.txt"),
+		filepath.Join(testdata, "another.txt"),
+		filepath.Join(testdata, "onemore.txt"),
+	}
+
+	cmd := exec.Command(cmdPath, args...)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err = cmd.Run(); err != nil {
+		t.Fatalf("Reading from files returned an error: %s", stderr.String())
+	}
+
+	got := strings.TrimSpace(stdout.String())
+
+	want := fmt.Sprintf(`[{"name":"%s","lines":23243,"bytes":1232922,"words":214132,"chars":1232922},{"name":"%s","lines":2,"bytes":608,"words":80,"chars":608},{"name":"%s","lines":2,"bytes":460,"words":63,"chars":460}]`, args[1], args[2], args[3])
 
 	if got != want {
 		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)

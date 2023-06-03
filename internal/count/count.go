@@ -35,16 +35,35 @@ type Result struct {
 }
 
 // Display outputs the Count as a pretty table to w.
-func (c Result) Display(w io.Writer, jsonFlag bool) error {
+func (r Result) Display(w io.Writer, jsonFlag bool) error {
 	if jsonFlag {
-		if err := json.NewEncoder(w).Encode(c); err != nil {
+		if err := json.NewEncoder(w).Encode(r); err != nil {
 			return fmt.Errorf("failed to serialise JSON: %w", err)
 		}
 		return nil
 	}
 	tab := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, tabwriter.DiscardEmptyColumns|tabwriter.AlignRight)
 	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
-	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", c.Name, c.Bytes, c.Chars, c.Lines, c.Words)
+	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", r.Name, r.Bytes, r.Chars, r.Lines, r.Words)
+	return tab.Flush()
+}
+
+// Results encodes multiple Results from different files.
+type Results []Result
+
+// Display outputs the Results to w.
+func (r Results) Display(w io.Writer, jsonFlag bool) error {
+	if jsonFlag {
+		if err := json.NewEncoder(w).Encode(r); err != nil {
+			return fmt.Errorf("failed to serialise JSON: %w", err)
+		}
+		return nil
+	}
+	tab := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, tabwriter.DiscardEmptyColumns|tabwriter.AlignRight)
+	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
+	for _, res := range r {
+		fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", res.Name, res.Bytes, res.Chars, res.Lines, res.Words)
+	}
 	return tab.Flush()
 }
 
