@@ -125,7 +125,7 @@ the difference with the original.
 
 Counting on multiple files happens concurrently in a worker pool across all your cores so even on very high numbers of files it performs well:
 
-![bench](https://github.com/FollowTheProcess/gocwd/raw/main/img/bench.png)
+![bench](https://github.com/FollowTheProcess/gowc/raw/main/img/bench.png)
 
 That's 9261 files read and counted words, lines, bytes and utf-8 characters in just over 18ms 🚀
 
