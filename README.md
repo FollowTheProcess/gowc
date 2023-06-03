@@ -118,6 +118,17 @@ gowc -json myfiles/*
 ]
 ```
 
+## Performance
+
+I've not really put too much effort into optimisation, there's potentially some to be had, but it performs fast enough so that you wouldn't notice
+the difference with the original.
+
+Counting on multiple files happens concurrently in a worker pool across all your cores so even on very high numbers of files it performs well:
+
+![bench](https://github.com/FollowTheProcess/gocwd/raw/main/img/bench.png)
+
+That's 9261 files read and counted words, lines, bytes and utf-8 characters in just over 18ms 🚀
+
 ### Credits
 
 This package was created with [copier] and the [FollowTheProcess/go_copier] project template.
