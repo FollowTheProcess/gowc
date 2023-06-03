@@ -13,6 +13,13 @@ Toy clone of [coreutils] [wc] in Go
 `gowc` is a toy reimplementation of [wc] in Go, mainly written for fun 😃. It's perfectly functional, well tested and correct but there's no real
 benefit over using it vs the original (aside from maybe the JSON flag).
 
+The main reason I chose to write it was that I discovered you can (sort of) abuse the [io.Writer] interface to count lines, words etc. The primary benefit being
+you can then leverage [io.Copy] from either files or stdin (both of which implement [io.Reader]).
+
+Using [io.Copy] means large files automatically get chunked into 32kb blocks and streamed through your program so `gowc` works seamlessly on enormous files!
+
+So this was a fun experiment to see how far you can take it.
+
 ## Installation
 
 Compiled binaries for all supported platforms can be found in the [GitHub release]. There is also a [homebrew] tap:
@@ -121,3 +128,6 @@ This package was created with [copier] and the [FollowTheProcess/go_copier] proj
 [homebrew]: https://brew.sh
 [coreutils]: https://www.gnu.org/software/coreutils/manual/
 [wc]: https://www.gnu.org/software/coreutils/manual/html_node/wc-invocation.html#wc-invocation
+[io.Writer]: https://pkg.go.dev/io#Writer
+[io.Copy]: https://pkg.go.dev/io#Copy
+[io.Reader]: https://pkg.go.dev/io#Reader
