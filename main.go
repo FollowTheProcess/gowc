@@ -18,6 +18,7 @@ Usage:
 
 Flags:
   -help 	Show this help message and exit
+  -json 	Output results as JSON
   -version 	Show version info
 
 Examples:
@@ -47,8 +48,8 @@ func main() {
 }
 
 func run() error {
-	// TODO: Add a -json flag
 	versionFlag := flag.Bool("version", false, "Display version info")
+	jsonFlag := flag.Bool("json", false, "Output results as JSON")
 	flag.Usage = func() {
 		fmt.Print(usage)
 	}
@@ -75,7 +76,7 @@ func run() error {
 		if err != nil {
 			return err
 		}
-		return result.Display(os.Stdout)
+		return result.Display(os.Stdout, *jsonFlag)
 	case 1:
 		// Read from the file
 		path := flag.Arg(0)
@@ -88,7 +89,7 @@ func run() error {
 		if err != nil {
 			return err
 		}
-		return result.Display(os.Stdout)
+		return result.Display(os.Stdout, *jsonFlag)
 	default:
 		// TODO: Support multiple files concurrently
 		return errors.New("Multiple files are not supported... yet")
