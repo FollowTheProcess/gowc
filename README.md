@@ -89,7 +89,7 @@ gowc -json moby_dick.txt | jq
 You can also do multiple files in JSON:
 
 ```shell
-gowc myfiles/*
+gowc -json myfiles/*
 ```
 
 ```json
