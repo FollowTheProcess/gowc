@@ -129,6 +129,44 @@ func TestDisplay(t *testing.T) {
 	}
 }
 
+func TestDisplayMultiple(t *testing.T) {
+	counts := count.Results{
+		{
+			Name:  "one",
+			Lines: 42,
+			Bytes: 128,
+			Words: 1000,
+			Chars: 78926,
+		},
+		{
+			Name:  "two",
+			Lines: 42,
+			Bytes: 128,
+			Words: 1000,
+			Chars: 78926,
+		},
+		{
+			Name:  "three",
+			Lines: 42,
+			Bytes: 128,
+			Words: 1000,
+			Chars: 78926,
+		},
+	}
+
+	out := &bytes.Buffer{}
+	if err := counts.Display(out, false); err != nil {
+		t.Fatalf("Display returned an unexpected error: %v", err)
+	}
+
+	got := out.String()
+	want := "File\tBytes\tChars\tLines\tWords\none\t128\t78926\t42\t1000\ntwo\t128\t78926\t42\t1000\nthree\t128\t78926\t42\t1000\n"
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
 func TestDisplayJSON(t *testing.T) {
 	count := count.Result{
 		Name:  "test",
@@ -145,6 +183,44 @@ func TestDisplayJSON(t *testing.T) {
 
 	got := strings.TrimSpace(out.String())
 	want := `{"name":"test","lines":42,"bytes":128,"words":1000,"chars":78926}`
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
+func TestDisplayJSONMultiple(t *testing.T) {
+	counts := count.Results{
+		{
+			Name:  "one",
+			Lines: 42,
+			Bytes: 128,
+			Words: 1000,
+			Chars: 78926,
+		},
+		{
+			Name:  "two",
+			Lines: 42,
+			Bytes: 128,
+			Words: 1000,
+			Chars: 78926,
+		},
+		{
+			Name:  "three",
+			Lines: 42,
+			Bytes: 128,
+			Words: 1000,
+			Chars: 78926,
+		},
+	}
+
+	out := &bytes.Buffer{}
+	if err := counts.Display(out, true); err != nil {
+		t.Fatalf("Display returned an unexpected error: %v", err)
+	}
+
+	got := strings.TrimSpace(out.String())
+	want := `[{"name":"one","lines":42,"bytes":128,"words":1000,"chars":78926},{"name":"two","lines":42,"bytes":128,"words":1000,"chars":78926},{"name":"three","lines":42,"bytes":128,"words":1000,"chars":78926}]`
 
 	if got != want {
 		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)

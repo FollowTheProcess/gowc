@@ -2,7 +2,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -91,7 +90,22 @@ func run() error {
 		}
 		return result.Display(os.Stdout, *jsonFlag)
 	default:
-		// TODO: Support multiple files concurrently
-		return errors.New("Multiple files are not supported... yet")
+		// TODO: Naively do it synchrously for now, should be parallel though
+		// preferably in a worker pool so we don't exceed number of open file limits
+		results := make(count.Results, 0, flag.NArg())
+		for _, file := range flag.Args() {
+			f, err := os.Open(file)
+			if err != nil {
+				return fmt.Errorf("failed to open %s: %w", file, err)
+			}
+			defer f.Close()
+			result, err := count.Count(f, file)
+			if err != nil {
+				return err
+			}
+			results = append(results, result)
+		}
+
+		return results.Display(os.Stdout, *jsonFlag)
 	}
 }
