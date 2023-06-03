@@ -6,11 +6,12 @@
 [![CI](https://github.com/FollowTheProcess/gowc/workflows/CI/badge.svg)](https://github.com/FollowTheProcess/gowc/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/FollowTheProcess/gowc/branch/main/graph/badge.svg)](https://codecov.io/gh/FollowTheProcess/gowc)
 
-Toy clone of coreutils wc in Go
-
-⚠️ **gowc is in early development and is not yet ready for use**
+Toy clone of [coreutils] [wc] in Go
 
 ## Project Description
+
+`gowc` is a toy reimplementation of [wc] in Go, mainly written for fun 😃. It's perfectly functional, well tested and correct but there's no real
+benefit over using it vs the original (aside from maybe the JSON flag).
 
 ## Installation
 
@@ -22,6 +23,94 @@ brew install FollowTheProcess/homebrew-tap/gowc
 
 ## Quickstart
 
+### Pipe from stdin
+
+```shell
+gowc < moby_dick.txt
+
+# Or
+cat moby_dick.txt | gowc
+```
+
+```plain
+File          Bytes   Chars   Lines Words
+moby_dick.txt 1232922 1232922 23243 214132
+```
+
+### Read from file
+
+```shell
+gowc moby_dick.txt
+```
+
+```plain
+File          Bytes   Chars   Lines Words
+moby_dick.txt 1232922 1232922 23243 214132
+```
+
+### Multiple files
+
+Multiple files are counted concurrently using a worker pool 🚀
+
+```shell
+gowc myfiles/*
+```
+
+```plain
+File                   Bytes    Chars   Lines Words
+.myfiles/onemore.txt   460      460     2     63
+.myfiles/another.txt   608      608     2     80
+.myfiles/moby_dick.txt 1232922  1232922 23243 214132
+```
+
+### JSON
+
+```shell
+gowc -json moby_dick.txt | jq
+```
+
+```json
+{
+  "name": "moby_dick.txt",
+  "lines": 23243,
+  "bytes": 1232922,
+  "words": 214132,
+  "chars": 1232922
+}
+```
+
+You can also do multiple files in JSON:
+
+```shell
+gowc myfiles/*
+```
+
+```json
+[
+  {
+    "name": "myfiles/onemore.txt",
+    "lines": 2,
+    "bytes": 460,
+    "words": 63,
+    "chars": 460
+  },
+  {
+    "name": "myfiles/another.txt",
+    "lines": 2,
+    "bytes": 608,
+    "words": 80,
+    "chars": 608
+  },
+  {
+    "name": "myfiles/moby_dick.txt",
+    "lines": 23243,
+    "bytes": 1232922,
+    "words": 214132,
+    "chars": 1232922
+  }
+]
+```
+
 ### Credits
 
 This package was created with [copier] and the [FollowTheProcess/go_copier] project template.
@@ -30,3 +119,5 @@ This package was created with [copier] and the [FollowTheProcess/go_copier] proj
 [FollowTheProcess/go_copier]: https://github.com/FollowTheProcess/go_copier
 [GitHub release]: https://github.com/FollowTheProcess/gowc/releases
 [homebrew]: https://brew.sh
+[coreutils]: https://www.gnu.org/software/coreutils/manual/
+[wc]: https://www.gnu.org/software/coreutils/manual/html_node/wc-invocation.html#wc-invocation
