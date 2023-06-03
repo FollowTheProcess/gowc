@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -91,5 +92,89 @@ func TestBadFlag(t *testing.T) {
 	cmd := exec.Command(cmdPath, "-bad")
 	if err := cmd.Run(); err == nil {
 		t.Fatal("-bad did not error")
+	}
+}
+
+func TestCountStdin(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+
+	cmdPath := filepath.Join(dir, binName)
+
+	cmd := exec.Command(cmdPath)
+	cmd.Stdin = strings.NewReader("hello there\n")
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("Reading from stdin returned an error: %s", stderr.String())
+	}
+
+	got := stdout.String()
+
+	want := "File\tBytes\tChars\tLines\tWords\nstdin\t12\t12\t1\t2\n"
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
+func TestCountStdinEmpty(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stderr := &bytes.Buffer{}
+
+	cmdPath := filepath.Join(dir, binName)
+
+	cmd := exec.Command(cmdPath)
+	cmd.Stderr = stderr
+
+	if err := cmd.Run(); err == nil {
+		t.Fatalf("Reading from empty stdin did not return an error")
+	}
+
+	got := stderr.String()
+
+	want := "nothing to read from stdin\n"
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
+func TestCountFile(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+
+	cmdPath := filepath.Join(dir, binName)
+	mobyDick := filepath.Join(dir, "internal", "count", "testdata", "moby_dick.txt")
+
+	cmd := exec.Command(cmdPath, mobyDick)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("Reading from moby dick returned an error: %s", stderr.String())
+	}
+
+	got := stdout.String()
+
+	want := fmt.Sprintf("File\t\t\t\t\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n", mobyDick)
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
 	}
 }
