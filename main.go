@@ -1,3 +1,4 @@
+// gowc is an experimental reimplementation of the unix coreutils wc tool
 package main
 
 import (
@@ -63,6 +64,7 @@ func main() {
 }
 
 func run() error {
+	// TODO: Add a -json flag
 	versionFlag := flag.Bool("version", false, "Display version info")
 	flag.Usage = func() {
 		fmt.Print(usage)
@@ -89,19 +91,20 @@ func run() error {
 		return count(file, "stdin")
 	case 1:
 		// Read from the file
-		file, err := os.Open(flag.Arg(0))
+		path := flag.Arg(0)
+		file, err := os.Open(path)
 		if err != nil {
-			return fmt.Errorf("failed to open %s: %w", flag.Arg(0), err)
+			return fmt.Errorf("failed to open %s: %w", path, err)
 		}
 		defer file.Close()
-		return count(file, flag.Arg(0))
+		return count(file, path)
 	default:
 		// TODO: Support multiple files concurrently
 		return errors.New("Multiple files are not supported... yet")
 	}
 }
 
-func count(in io.Reader, inName string) error {
+func count(in io.Reader, name string) error {
 	var (
 		lc LineCounter
 		bc ByteCounter
@@ -109,6 +112,8 @@ func count(in io.Reader, inName string) error {
 		cc CharCounter
 	)
 
+	// TODO: This currently copies to each writer one at a time when there's really no need
+	// they are all separate so could be parallelised
 	multi := io.MultiWriter(&lc, &bc, &wc, &cc)
 
 	_, err := io.Copy(multi, in)
@@ -117,7 +122,7 @@ func count(in io.Reader, inName string) error {
 	}
 	tab := tabwriter.NewWriter(os.Stdout, minWidth, tabWidth, padding, padChar, tabwriter.DiscardEmptyColumns|tabwriter.AlignRight)
 	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
-	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", inName, bc, cc, lc, wc)
+	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", name, bc, cc, lc, wc)
 	return tab.Flush()
 }
 
