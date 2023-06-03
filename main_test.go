@@ -6,18 +6,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 )
 
-var binName = "gowc"
+const binName = "gowc"
 
 func TestMain(m *testing.M) {
-	if runtime.GOOS == "windows" {
-		binName += ".exe"
-	}
-
 	build := exec.Command("go", "build", `-ldflags=-X 'main.version=0.1.0' -X 'main.commit=blah'`, "-o", binName)
 	build.Stdout = os.Stdout
 	build.Stderr = os.Stderr
@@ -124,6 +119,35 @@ func TestCountStdin(t *testing.T) {
 	}
 }
 
+func TestCountStdinJSON(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+
+	cmdPath := filepath.Join(dir, binName)
+
+	cmd := exec.Command(cmdPath, "-json")
+	cmd.Stdin = strings.NewReader("hello there\n")
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("Reading from stdin returned an error: %s", stderr.String())
+	}
+
+	got := strings.TrimSpace(stdout.String())
+
+	want := `{"name":"stdin","lines":1,"bytes":12,"words":2,"chars":12}`
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
 func TestCountStdinEmpty(t *testing.T) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -170,17 +194,40 @@ func TestCountFile(t *testing.T) {
 		t.Fatalf("Reading from moby dick returned an error: %s", stderr.String())
 	}
 
-	// Windows is stupid and it doesn't even have wc anyway so
-	// There's a different number of tabs on windows and the line counts
-	// can be different by the looks of it. I don't actually care about windows
-	// really so this can go die in a hole
-	if runtime.GOOS != "windows" {
-		got := stdout.String()
+	got := stdout.String()
 
-		want := fmt.Sprintf("File\t\t\t\t\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n", mobyDick)
+	want := fmt.Sprintf("File\t\t\t\t\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n", mobyDick)
 
-		if got != want {
-			t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-		}
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
+func TestCountFileJSON(t *testing.T) {
+	dir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+
+	cmdPath := filepath.Join(dir, binName)
+	mobyDick := filepath.Join(dir, "internal", "count", "testdata", "moby_dick.txt")
+
+	cmd := exec.Command(cmdPath, "-json", mobyDick)
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("Reading from moby dick returned an error: %s", stderr.String())
+	}
+
+	got := strings.TrimSpace(stdout.String())
+
+	want := fmt.Sprintf(`{"name":"%s","lines":23243,"bytes":1232922,"words":214132,"chars":1232922}`, mobyDick)
+
+	if got != want {
+		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
 	}
 }

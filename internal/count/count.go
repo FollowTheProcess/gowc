@@ -4,6 +4,7 @@ package count
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"text/tabwriter"
@@ -26,15 +27,21 @@ type (
 
 // Result encodes the result of a counting operation on a file.
 type Result struct {
-	Name  string
-	Lines uint64
-	Bytes uint64
-	Words uint64
-	Chars uint64
+	Name  string `json:"name"`
+	Lines uint64 `json:"lines"`
+	Bytes uint64 `json:"bytes"`
+	Words uint64 `json:"words"`
+	Chars uint64 `json:"chars"`
 }
 
 // Display outputs the Count as a pretty table to w.
-func (c Result) Display(w io.Writer) error {
+func (c Result) Display(w io.Writer, jsonFlag bool) error {
+	if jsonFlag {
+		if err := json.NewEncoder(w).Encode(c); err != nil {
+			return fmt.Errorf("failed to serialise JSON: %w", err)
+		}
+		return nil
+	}
 	tab := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, tabwriter.DiscardEmptyColumns|tabwriter.AlignRight)
 	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
 	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", c.Name, c.Bytes, c.Chars, c.Lines, c.Words)
