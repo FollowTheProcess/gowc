@@ -44,16 +44,16 @@ const (
 	padChar  = '\t'
 )
 
-type (
-	LineCounter int
-	ByteCounter int
-	WordCounter int
-	CharCounter int
-)
-
 var (
 	version = "dev" // gowc version, set at compile time by ldflags
 	commit  = ""    // commit hash at build, set at compile time by ldflags
+)
+
+type (
+	LineCounter uint64
+	ByteCounter uint64
+	WordCounter uint64
+	CharCounter uint64
 )
 
 func main() {
@@ -88,7 +88,11 @@ func run() error {
 		if !((info.Mode() & os.ModeCharDevice) == 0) {
 			return fmt.Errorf("nothing to read from stdin")
 		}
-		return count(file, "stdin")
+		result, err := count(file, "stdin")
+		if err != nil {
+			return err
+		}
+		return result.Display(os.Stdout)
 	case 1:
 		// Read from the file
 		path := flag.Arg(0)
@@ -97,14 +101,19 @@ func run() error {
 			return fmt.Errorf("failed to open %s: %w", path, err)
 		}
 		defer file.Close()
-		return count(file, path)
+		result, err := count(file, path)
+		if err != nil {
+			return err
+		}
+		return result.Display(os.Stdout)
 	default:
 		// TODO: Support multiple files concurrently
 		return errors.New("Multiple files are not supported... yet")
 	}
 }
 
-func count(in io.Reader, name string) error {
+// count performs a counting operation on in, returning the result and any error.
+func count(in io.Reader, name string) (Count, error) {
 	var (
 		lc LineCounter
 		bc ByteCounter
@@ -118,12 +127,16 @@ func count(in io.Reader, name string) error {
 
 	_, err := io.Copy(multi, in)
 	if err != nil {
-		return err
+		return Count{}, err
 	}
-	tab := tabwriter.NewWriter(os.Stdout, minWidth, tabWidth, padding, padChar, tabwriter.DiscardEmptyColumns|tabwriter.AlignRight)
-	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
-	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", name, bc, cc, lc, wc)
-	return tab.Flush()
+
+	return Count{
+		Name:  name,
+		Lines: uint64(lc),
+		Bytes: uint64(bc),
+		Words: uint64(wc),
+		Chars: uint64(cc),
+	}, nil
 }
 
 // Write implements [io.Writer] for LineCounter.
@@ -178,4 +191,21 @@ func (c *CharCounter) Write(data []byte) (int, error) {
 		*c++
 	}
 	return len(data), nil
+}
+
+// Count encodes the result of a counting operation on a file.
+type Count struct {
+	Name  string
+	Lines uint64
+	Bytes uint64
+	Words uint64
+	Chars uint64
+}
+
+// Display outputs the Count as a pretty table to w.
+func (c Count) Display(w io.Writer) error {
+	tab := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, tabwriter.DiscardEmptyColumns|tabwriter.AlignRight)
+	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
+	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", c.Name, c.Bytes, c.Chars, c.Lines, c.Words)
+	return tab.Flush()
 }
