@@ -3,6 +3,8 @@ package count_test
 import (
 	"bytes"
 	"io"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -124,5 +126,27 @@ func TestDisplay(t *testing.T) {
 
 	if got != want {
 		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
+	}
+}
+
+func BenchmarkCount(b *testing.B) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	mobyDick := filepath.Join(cwd, "testdata", "moby_dick.txt")
+	contents, err := os.ReadFile(mobyDick)
+	if err != nil {
+		b.Fatalf("could not read moby dick: %v", err)
+	}
+	r := bytes.NewReader(contents)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := count.Count(r, "bench")
+		if err != nil {
+			b.Fatalf("Count returned an error: %v", err)
+		}
 	}
 }

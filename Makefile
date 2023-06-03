@@ -1,4 +1,4 @@
-.PHONY: help tidy fmt test lint cover clean check sloc install uninstall
+.PHONY: help tidy fmt test bench lint cover clean check sloc install uninstall
 .DEFAULT_GOAL := help
 
 COVERAGE_DATA := coverage.out
@@ -16,6 +16,9 @@ fmt: ## Run go fmt on all source files
 
 test: ## Run the test suite
 	go test -race ./...
+
+bench: ## Run benchmarks
+	go test ./... -run=None -benchmem -bench .
 
 lint: ## Run the linters and auto-fix if possible
 	golangci-lint run --fix
