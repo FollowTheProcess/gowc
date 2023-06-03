@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const binName = "gowc"
+const binName = "./gowc"
 
 func TestMain(m *testing.M) {
 	build := exec.Command("go", "build", `-ldflags=-X 'main.version=0.1.0' -X 'main.commit=blah'`, "-o", binName)
@@ -29,16 +29,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestHelp(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-
-	cmd := exec.Command(cmdPath, "-help")
+	cmd := exec.Command(binName, "-help")
 	cmd.Stdout = stdout
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("-help produced an error: %v", err)
@@ -53,16 +46,9 @@ func TestHelp(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-
-	cmd := exec.Command(cmdPath, "-version")
+	cmd := exec.Command(binName, "-version")
 	cmd.Stdout = stdout
 	if err := cmd.Run(); err != nil {
 		t.Fatalf("-version produced an error: %v", err)
@@ -77,31 +63,17 @@ func TestVersion(t *testing.T) {
 }
 
 func TestBadFlag(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	cmdPath := filepath.Join(dir, binName)
-
-	cmd := exec.Command(cmdPath, "-bad")
+	cmd := exec.Command(binName, "-bad")
 	if err := cmd.Run(); err == nil {
 		t.Fatal("-bad did not error")
 	}
 }
 
 func TestCountStdin(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-
-	cmd := exec.Command(cmdPath)
+	cmd := exec.Command(binName)
 	cmd.Stdin = strings.NewReader("hello there\n")
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
@@ -120,17 +92,10 @@ func TestCountStdin(t *testing.T) {
 }
 
 func TestCountStdinJSON(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-
-	cmd := exec.Command(cmdPath, "-json")
+	cmd := exec.Command(binName, "-json")
 	cmd.Stdin = strings.NewReader("hello there\n")
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
@@ -149,16 +114,9 @@ func TestCountStdinJSON(t *testing.T) {
 }
 
 func TestCountStdinEmpty(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stderr := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-
-	cmd := exec.Command(cmdPath)
+	cmd := exec.Command(binName)
 	cmd.Stderr = stderr
 
 	if err := cmd.Run(); err == nil {
@@ -175,18 +133,12 @@ func TestCountStdinEmpty(t *testing.T) {
 }
 
 func TestCountFile(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-	mobyDick := filepath.Join(dir, "internal", "count", "testdata", "moby_dick.txt")
+	mobyDick := filepath.Join("internal", "count", "testdata", "moby_dick.txt")
 
-	cmd := exec.Command(cmdPath, mobyDick)
+	cmd := exec.Command(binName, mobyDick)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
@@ -196,7 +148,7 @@ func TestCountFile(t *testing.T) {
 
 	got := stdout.String()
 
-	want := fmt.Sprintf("File\t\t\t\t\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n", mobyDick)
+	want := fmt.Sprintf("File\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n", mobyDick)
 
 	if got != want {
 		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
@@ -204,33 +156,27 @@ func TestCountFile(t *testing.T) {
 }
 
 func TestCountFiles(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-	testdata := filepath.Join(dir, "internal", "count", "testdata")
+	testdata := filepath.Join("internal", "count", "testdata")
 	files := []string{
 		filepath.Join(testdata, "moby_dick.txt"),
 		filepath.Join(testdata, "another.txt"),
 		filepath.Join(testdata, "onemore.txt"),
 	}
 
-	cmd := exec.Command(cmdPath, files...)
+	cmd := exec.Command(binName, files...)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	if err = cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		t.Fatalf("Reading from files returned an error: %s", stderr.String())
 	}
 
 	got := stdout.String()
 
-	want := fmt.Sprintf("File\t\t\t\t\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n%s\t608\t608\t2\t80\n%s\t460\t460\t2\t63\n", files[0], files[1], files[2])
+	want := fmt.Sprintf("File\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n%s\t608\t608\t2\t80\n%s\t460\t460\t2\t63\n", files[0], files[1], files[2])
 
 	if got != want {
 		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
@@ -238,18 +184,12 @@ func TestCountFiles(t *testing.T) {
 }
 
 func TestCountFileJSON(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-	mobyDick := filepath.Join(dir, "internal", "count", "testdata", "moby_dick.txt")
+	mobyDick := filepath.Join("internal", "count", "testdata", "moby_dick.txt")
 
-	cmd := exec.Command(cmdPath, "-json", mobyDick)
+	cmd := exec.Command(binName, "-json", mobyDick)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
@@ -267,16 +207,10 @@ func TestCountFileJSON(t *testing.T) {
 }
 
 func TestCountFilesJSON(t *testing.T) {
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmdPath := filepath.Join(dir, binName)
-	testdata := filepath.Join(dir, "internal", "count", "testdata")
+	testdata := filepath.Join("internal", "count", "testdata")
 	args := []string{
 		"-json",
 		filepath.Join(testdata, "moby_dick.txt"),
@@ -284,11 +218,11 @@ func TestCountFilesJSON(t *testing.T) {
 		filepath.Join(testdata, "onemore.txt"),
 	}
 
-	cmd := exec.Command(cmdPath, args...)
+	cmd := exec.Command(binName, args...)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	if err = cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		t.Fatalf("Reading from files returned an error: %s", stderr.String())
 	}
 
