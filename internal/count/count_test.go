@@ -113,6 +113,7 @@ func TestCountAll(t *testing.T) {
 		filepath.Join("testdata", "moby_dick.txt"),
 		filepath.Join("testdata", "another.txt"),
 		filepath.Join("testdata", "onemore.txt"),
+		filepath.Join("testdata", "dir"),
 	}
 
 	results, err := count.All(files)

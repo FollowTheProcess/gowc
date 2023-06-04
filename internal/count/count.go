@@ -152,10 +152,13 @@ func worker(counts chan<- Result, files <-chan string, wg *sync.WaitGroup) {
 	for file := range files {
 		f, err := os.Open(file)
 		if err != nil {
-			// If we can't open the file, just put an empty count on the results
-			// channel and move on
-			// TODO: Could probably improve this
-			counts <- Result{Name: file}
+			// If we can't open the (possibly dir) path
+			// then just continue
+			continue
+		}
+		info, _ := f.Stat() //nolint: errcheck // The file is already open here so we can ignore the error
+		// Skip directories
+		if info.IsDir() {
 			continue
 		}
 		result, err := One(f, file)
