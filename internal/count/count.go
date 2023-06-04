@@ -30,11 +30,11 @@ type (
 
 // Result encodes the result of a counting operation on a file.
 type Result struct {
-	Name  string `json:"name"`
-	Lines uint64 `json:"lines"`
-	Bytes uint64 `json:"bytes"`
-	Words uint64 `json:"words"`
-	Chars uint64 `json:"chars"`
+	Name  string      `json:"name"`
+	Lines LineCounter `json:"lines"`
+	Bytes ByteCounter `json:"bytes"`
+	Words WordCounter `json:"words"`
+	Chars CharCounter `json:"chars"`
 }
 
 // Display outputs the Count as a pretty table to w.
@@ -90,10 +90,10 @@ func One(in io.Reader, name string) (Result, error) {
 
 	return Result{
 		Name:  name,
-		Lines: uint64(lc),
-		Bytes: uint64(bc),
-		Words: uint64(wc),
-		Chars: uint64(cc),
+		Lines: lc,
+		Bytes: bc,
+		Words: wc,
+		Chars: cc,
 	}, nil
 }
 
