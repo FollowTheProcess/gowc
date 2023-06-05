@@ -5,12 +5,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 	"sort"
 	"strings"
 	"testing"
 
 	"github.com/FollowTheProcess/gowc/internal/count"
+	"github.com/FollowTheProcess/test"
 )
 
 const someText = `
@@ -97,13 +97,9 @@ func TestCount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := count.One(tt.in, "")
-			if err != nil {
-				t.Fatalf("count returned an unexpected error: %v", err)
-			}
 
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("\nGot:\t%+v\nWanted:\t%+v\n", got, tt.want)
-			}
+			test.Ok(t, err)
+			test.Equal(t, got, tt.want)
 		})
 	}
 }
@@ -117,9 +113,7 @@ func TestCountAll(t *testing.T) {
 	}
 
 	results, err := count.All(files)
-	if err != nil {
-		t.Fatalf("count.All returned an error: %v", err)
-	}
+	test.Ok(t, err)
 
 	want := count.Results{
 		{
@@ -148,9 +142,7 @@ func TestCountAll(t *testing.T) {
 	sort.Stable(ByName(results))
 	sort.Stable(ByName(want))
 
-	if !sliceEqual(results, want) {
-		t.Errorf("\nGot:\t%+v\nWanted:\t%+v", results, want)
-	}
+	test.EqualFunc(t, results, want, resultsEqual)
 }
 
 func TestDisplay(t *testing.T) {
@@ -163,16 +155,13 @@ func TestDisplay(t *testing.T) {
 	}
 
 	out := &bytes.Buffer{}
-	if err := count.Display(out, false); err != nil {
-		t.Fatalf("Display returned an unexpected error: %v", err)
-	}
+	err := count.Display(out, false)
+	test.Ok(t, err)
 
 	got := out.String()
 	want := "File\tBytes\tChars\tLines\tWords\ntest\t128\t78926\t42\t1000\n"
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestDisplayMultiple(t *testing.T) {
@@ -201,16 +190,13 @@ func TestDisplayMultiple(t *testing.T) {
 	}
 
 	out := &bytes.Buffer{}
-	if err := counts.Display(out, false); err != nil {
-		t.Fatalf("Display returned an unexpected error: %v", err)
-	}
+	err := counts.Display(out, false)
+	test.Ok(t, err)
 
 	got := out.String()
 	want := "File\tBytes\tChars\tLines\tWords\none\t128\t78926\t42\t1000\ntwo\t128\t78926\t42\t1000\nthree\t128\t78926\t42\t1000\n"
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestDisplayJSON(t *testing.T) {
@@ -223,16 +209,13 @@ func TestDisplayJSON(t *testing.T) {
 	}
 
 	out := &bytes.Buffer{}
-	if err := count.Display(out, true); err != nil {
-		t.Fatalf("Display returned an unexpected error: %v", err)
-	}
+	err := count.Display(out, true)
+	test.Ok(t, err)
 
 	got := strings.TrimSpace(out.String())
 	want := `{"name":"test","lines":42,"bytes":128,"words":1000,"chars":78926}`
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestDisplayJSONMultiple(t *testing.T) {
@@ -261,16 +244,13 @@ func TestDisplayJSONMultiple(t *testing.T) {
 	}
 
 	out := &bytes.Buffer{}
-	if err := counts.Display(out, true); err != nil {
-		t.Fatalf("Display returned an unexpected error: %v", err)
-	}
+	err := counts.Display(out, true)
+	test.Ok(t, err)
 
 	got := strings.TrimSpace(out.String())
 	want := `[{"name":"one","lines":42,"bytes":128,"words":1000,"chars":78926},{"name":"two","lines":42,"bytes":128,"words":1000,"chars":78926},{"name":"three","lines":42,"bytes":128,"words":1000,"chars":78926}]`
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func BenchmarkCount(b *testing.B) {
@@ -295,22 +275,20 @@ func BenchmarkCount(b *testing.B) {
 	}
 }
 
-func sliceEqual[T comparable](a, b []T) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	for i, item := range a {
-		if b[i] != item {
-			return false
-		}
-	}
-
-	return true
-}
-
 type ByName []count.Result
 
 func (a ByName) Len() int           { return len(a) }
 func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
+
+func resultsEqual(a, b count.Results) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}

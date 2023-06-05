@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/FollowTheProcess/test"
 )
 
 const binName = "./gowc"
@@ -33,16 +35,13 @@ func TestHelp(t *testing.T) {
 
 	cmd := exec.Command(binName, "-help")
 	cmd.Stdout = stdout
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("-help produced an error: %v", err)
-	}
+	err := cmd.Run()
+	test.Ok(t, err)
 
 	want := usage
 	got := stdout.String()
 
-	if got != want {
-		t.Errorf("\nGot:\t%s\nWanted:\t%s\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestVersion(t *testing.T) {
@@ -50,16 +49,13 @@ func TestVersion(t *testing.T) {
 
 	cmd := exec.Command(binName, "-version")
 	cmd.Stdout = stdout
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("-version produced an error: %v", err)
-	}
+	err := cmd.Run()
+	test.Ok(t, err)
 
 	want := "Version: 0.1.0\nCommit: blah\n"
 	got := stdout.String()
 
-	if got != want {
-		t.Errorf("\nGot:\n%s\nWanted:\n%s\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestBadFlag(t *testing.T) {
@@ -78,17 +74,14 @@ func TestCountStdin(t *testing.T) {
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("Reading from stdin returned an error: %s", stderr.String())
-	}
+	err := cmd.Run()
+	test.Ok(t, err)
 
 	got := stdout.String()
 
 	want := "File\tBytes\tChars\tLines\tWords\nstdin\t12\t12\t1\t2\n"
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestCountStdinJSON(t *testing.T) {
@@ -100,17 +93,14 @@ func TestCountStdinJSON(t *testing.T) {
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("Reading from stdin returned an error: %s", stderr.String())
-	}
+	err := cmd.Run()
+	test.Ok(t, err)
 
 	got := strings.TrimSpace(stdout.String())
 
 	want := `{"name":"stdin","lines":1,"bytes":12,"words":2,"chars":12}`
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestCountStdinEmpty(t *testing.T) {
@@ -127,9 +117,7 @@ func TestCountStdinEmpty(t *testing.T) {
 
 	want := "nothing to read from stdin\n"
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestCountFile(t *testing.T) {
@@ -142,17 +130,14 @@ func TestCountFile(t *testing.T) {
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("Reading from moby dick returned an error: %s", stderr.String())
-	}
+	err := cmd.Run()
+	test.Ok(t, err)
 
 	got := stdout.String()
 
 	want := fmt.Sprintf("File\t\t\t\t\tBytes\tChars\tLines\tWords\n%s\t1232922\t1232922\t23243\t214132\n", mobyDick)
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
 
 func TestCountFileJSON(t *testing.T) {
@@ -165,15 +150,12 @@ func TestCountFileJSON(t *testing.T) {
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	if err := cmd.Run(); err != nil {
-		t.Fatalf("Reading from moby dick returned an error: %s", stderr.String())
-	}
+	err := cmd.Run()
+	test.Ok(t, err)
 
 	got := strings.TrimSpace(stdout.String())
 
 	want := fmt.Sprintf(`{"name":"%s","lines":23243,"bytes":1232922,"words":214132,"chars":1232922}`, mobyDick)
 
-	if got != want {
-		t.Errorf("\nGot:\t%#v\nWanted:\t%#v\n", got, want)
-	}
+	test.Equal(t, got, want)
 }
