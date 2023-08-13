@@ -15,6 +15,7 @@ builds:
       - -X main.commit={{.Commit}}
     env:
       - CGO_ENABLED=0
+      - GOEXPERIMENT=loopvar
     goos:
       - linux
       - darwin
@@ -26,7 +27,7 @@ builds:
       - "7"
 
 brews:
-  - tap:
+  - repository:
       owner: FollowTheProcess
       name: homebrew-tap
       token: "{{.Env.HOMEBREW_TAP_TOKEN}}"
