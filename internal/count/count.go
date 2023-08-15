@@ -228,11 +228,3 @@ func (c *CharCounter) Write(data []byte) (int, error) {
 	}
 	return len(data), nil
 }
-
-// min returns the minimum of 2 ints.
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
