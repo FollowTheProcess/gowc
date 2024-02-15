@@ -111,7 +111,7 @@ func All(files []string) (Results, error) {
 	// nWorkers is min of NumCPU and len(files) so we don't start more workers than
 	// is necessary (no point kicking off 8 workers to do 3 files for example)
 	nWorkers := min(runtime.NumCPU(), len(files))
-	for i := 0; i < nWorkers; i++ {
+	for range nWorkers {
 		wg.Add(1)
 		go worker(counts, jobs, &wg)
 	}

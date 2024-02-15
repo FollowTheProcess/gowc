@@ -14,9 +14,6 @@ concurrency:
 
 permissions: read-all
 
-env:
-  GOEXPERIMENT: loopvar
-
 jobs:
   test:
     name: Test
