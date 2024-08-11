@@ -12,20 +12,30 @@ import (
 	"github.com/FollowTheProcess/test"
 )
 
-const binName = "./gowc"
+const binName = "gowc"
+
+var binPath string
 
 func TestMain(m *testing.M) {
-	build := exec.Command("go", "build", `-ldflags=-X 'main.version=0.1.0' -X 'main.commit=blah'`, "-o", binName)
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "could not get cwd: %v", err)
+		os.Exit(1)
+	}
+	bin := filepath.Join(cwd, binName)
+	build := exec.Command("go", "build", `-ldflags=-X 'main.version=0.1.0' -X 'main.commit=blah'`, "-o", bin)
 	build.Stdout = os.Stdout
 	build.Stderr = os.Stderr
 	if err := build.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to compile %s: %v\n", binName, err)
+		fmt.Fprintf(os.Stderr, "failed to compile %s: %v\n", bin, err)
 		os.Exit(1)
 	}
 
+	binPath = bin
+
 	result := m.Run()
 
-	os.Remove(binName)
+	os.Remove(binPath)
 
 	os.Exit(result)
 }
@@ -33,7 +43,7 @@ func TestMain(m *testing.M) {
 func TestHelp(t *testing.T) {
 	stdout := &bytes.Buffer{}
 
-	cmd := exec.Command(binName, "-help")
+	cmd := exec.Command(binPath, "-help")
 	cmd.Stdout = stdout
 	err := cmd.Run()
 	test.Ok(t, err)
@@ -47,7 +57,7 @@ func TestHelp(t *testing.T) {
 func TestVersion(t *testing.T) {
 	stdout := &bytes.Buffer{}
 
-	cmd := exec.Command(binName, "-version")
+	cmd := exec.Command(binPath, "-version")
 	cmd.Stdout = stdout
 	err := cmd.Run()
 	test.Ok(t, err)
@@ -59,7 +69,7 @@ func TestVersion(t *testing.T) {
 }
 
 func TestBadFlag(t *testing.T) {
-	cmd := exec.Command(binName, "-bad")
+	cmd := exec.Command(binPath, "-bad")
 	if err := cmd.Run(); err == nil {
 		t.Fatal("-bad did not error")
 	}
@@ -69,7 +79,7 @@ func TestCountStdin(t *testing.T) {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmd := exec.Command(binName)
+	cmd := exec.Command(binPath)
 	cmd.Stdin = strings.NewReader("hello there\n")
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
@@ -88,7 +98,7 @@ func TestCountStdinJSON(t *testing.T) {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	cmd := exec.Command(binName, "-json")
+	cmd := exec.Command(binPath, "-json")
 	cmd.Stdin = strings.NewReader("hello there\n")
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
@@ -106,7 +116,7 @@ func TestCountStdinJSON(t *testing.T) {
 func TestCountStdinEmpty(t *testing.T) {
 	stderr := &bytes.Buffer{}
 
-	cmd := exec.Command(binName)
+	cmd := exec.Command(binPath)
 	cmd.Stderr = stderr
 
 	if err := cmd.Run(); err == nil {
@@ -126,7 +136,7 @@ func TestCountFile(t *testing.T) {
 
 	mobyDick := filepath.Join("internal", "count", "testdata", "moby_dick.txt")
 
-	cmd := exec.Command(binName, mobyDick)
+	cmd := exec.Command(binPath, mobyDick)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
@@ -146,7 +156,7 @@ func TestCountFileJSON(t *testing.T) {
 
 	mobyDick := filepath.Join("internal", "count", "testdata", "moby_dick.txt")
 
-	cmd := exec.Command(binName, "-json", mobyDick)
+	cmd := exec.Command(binPath, "-json", mobyDick)
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
