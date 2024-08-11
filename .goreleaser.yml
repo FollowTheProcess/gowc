@@ -1,3 +1,5 @@
+version: 2
+
 project_name: gowc
 
 before:
@@ -9,6 +11,8 @@ builds:
     dir: "."
     main: "."
     binary: gowc
+    flags:
+      - -trimpath
     ldflags:
       - -s -w
       - -X main.version={{.Version}}
@@ -31,17 +35,17 @@ brews:
       name: homebrew-tap
       token: "{{.Env.HOMEBREW_TAP_TOKEN}}"
     goarm: "7"
-    folder: Formula
+    directory: Formula
     commit_author:
       name: Tom Fleet
       email: tomfleet2018@gmail.com
     homepage: https://github.com/FollowTheProcess/gowc
-    description: Toy clone of coreutils wc in Go
+    description: Implementation of wc in Go
     license: MIT License
     install: |
       bin.install "gowc"
     test: |
-      "#{bin}/gowc -version"
+      "#{bin}/gowc --version"
 
 archives:
   - id: gowc
@@ -59,7 +63,7 @@ sboms:
     documents:
       - >-
         {{ .ProjectName }}-
-        {{- .Version}}-
+        {{- .Version }}-
         {{- .Os }}-
         {{- if eq .Arch "amd64" }}x86_64
         {{- else if eq .Arch "386" }}i386
@@ -73,4 +77,4 @@ snapshot:
 
 changelog:
   # The changelog is handled by release drafter
-  skip: true
+  disable: true
