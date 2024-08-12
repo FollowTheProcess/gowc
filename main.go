@@ -1,9 +1,11 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"io"
 	"os"
+	"slices"
 
 	"github.com/FollowTheProcess/cli"
 	"github.com/FollowTheProcess/gowc/internal/count"
@@ -94,6 +96,9 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 			if err != nil {
 				return err
 			}
+			// Sort the results by name so it's deterministic
+			slices.SortFunc(results, cmpResult)
+
 			return results.Display(stdout, options.json)
 		}
 	}
@@ -102,4 +107,9 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 func displayVersion(cmd *cli.Command) error {
 	fmt.Fprintf(cmd.Stderr(), "Version: %s\nCommit: %s\n", version, commit)
 	return nil
+}
+
+func cmpResult(a, b count.Result) int {
+	// Just compare by name
+	return cmp.Compare(a.Name, b.Name)
 }
