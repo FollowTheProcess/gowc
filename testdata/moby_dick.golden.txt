@@ -1,0 +1,2 @@
+File                                             Bytes    Chars    Lines  Words
+internal/count/testdata/TestCount/moby_dick.txt  1232922  1232922  23243  214132

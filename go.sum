@@ -1,3 +1,5 @@
+github.com/FollowTheProcess/cli v0.1.0 h1:1IbswvnwbF8rGjU9ByeKKHnLiwfoCVW2zwIKMCoOFWk=
+github.com/FollowTheProcess/cli v0.1.0/go.mod h1:WpuVeGASGKCIEuFSlBSSOq3c+aw77xd1dVfVoXMSfcI=
 github.com/FollowTheProcess/test v0.13.0 h1:u0TP9jIM2Pho3CtwjyLptr1M8ScEDbfZzc88DMT7eg0=
 github.com/FollowTheProcess/test v0.13.0/go.mod h1:oIqlUoS8wKFmKBFBMJH/+asP7lQXE2D3YFhmUEubTUw=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
