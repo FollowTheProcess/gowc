@@ -58,7 +58,7 @@ func TestCountMany(t *testing.T) {
 	want := filepath.Join("testdata", "all.golden.txt")
 
 	if *debug {
-		fmt.Printf("\nDEBUG (TestCountFile)\n------------\n\n%s\n", got)
+		fmt.Printf("\nDEBUG (TestCountMany)\n------------\n\n%s\n", got)
 	}
 
 	if *update {
