@@ -87,6 +87,7 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 				return err
 			}
 			return result.Display(stdout, options.json)
+
 		default:
 			// Count many files
 			results, err := count.All(args)
