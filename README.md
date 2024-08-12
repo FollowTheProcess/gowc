@@ -73,7 +73,7 @@ File                   Bytes    Chars   Lines Words
 ### JSON
 
 ```shell
-gowc -json moby_dick.txt | jq
+gowc moby_dick.txt --json | jq
 ```
 
 ```json
@@ -89,7 +89,7 @@ gowc -json moby_dick.txt | jq
 You can also do multiple files in JSON:
 
 ```shell
-gowc -json myfiles/*
+gowc myfiles/* --json
 ```
 
 ```json
