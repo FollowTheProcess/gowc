@@ -54,6 +54,7 @@ type countOptions struct {
 
 func doCount(options *countOptions) func(cmd *cli.Command, args []string) error {
 	return func(cmd *cli.Command, args []string) error {
+		stdout := cmd.Stdout()
 		switch len(args) {
 		case 0:
 			// Read from stdin
@@ -70,7 +71,7 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			return result.Display(cmd.Stdout(), options.json)
+			return result.Display(stdout, options.json)
 
 		case 1:
 			// Read from the file
@@ -85,14 +86,14 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			return result.Display(cmd.Stdout(), options.json)
+			return result.Display(stdout, options.json)
 		default:
 			// Count many files
 			results, err := count.All(args)
 			if err != nil {
 				return err
 			}
-			return results.Display(cmd.Stdout(), options.json)
+			return results.Display(stdout, options.json)
 		}
 	}
 }
