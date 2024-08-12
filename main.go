@@ -15,13 +15,13 @@ var (
 )
 
 func main() {
-	if err := run(os.Stdin, os.Stdout, os.Stderr); err != nil {
+	if err := run(os.Stdin, os.Stdout, os.Stderr, os.Args[1:]); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
+func run(stdin io.Reader, stdout io.Writer, stderr io.Writer, args []string) error {
 	var options countOptions
 	cmd, err := cli.New(
 		"gowc",
@@ -31,6 +31,7 @@ func run(stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
 		cli.Example("Or", "gowc < myfile.txt"),
 		cli.Example("Read from file", "gowc myfile.txt"),
 		cli.Example("Or many files", "gowc **/*.go"),
+		cli.Args(args),
 		cli.Stdin(stdin),
 		cli.Stdout(stdout),
 		cli.Stderr(stderr),
@@ -73,7 +74,7 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 
 		case 1:
 			// Read from the file
-			path := args[1]
+			path := args[0]
 			file, err := os.Open(path)
 			if err != nil {
 				return fmt.Errorf("could not open %s: %w", path, err)
