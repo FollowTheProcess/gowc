@@ -2,10 +2,13 @@ package count_test
 
 import (
 	"bytes"
+	"cmp"
+	"flag"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"testing"
 
@@ -25,6 +28,11 @@ Exercitationem quis ut ipsa totam excepturi vel natus. Eos fuga ipsum ab asperna
 
 Illo veniam occaecati error debitis inventore sed odio. Tempora incidunt praesentium placeat eius officia architecto accusamus voluptates.
 `
+
+var (
+	update = flag.Bool("update", false, "Update golden files")
+	debug  = flag.Bool("debug", false, "Print debug output to stdout")
+)
 
 func TestCount(t *testing.T) {
 	tests := []struct {
@@ -106,10 +114,10 @@ func TestCount(t *testing.T) {
 
 func TestCountAll(t *testing.T) {
 	files := []string{
-		filepath.Join("testdata", "moby_dick.txt"),
-		filepath.Join("testdata", "another.txt"),
-		filepath.Join("testdata", "onemore.txt"),
-		filepath.Join("testdata", "dir"),
+		filepath.Join("testdata", "TestCount", "moby_dick.txt"),
+		filepath.Join("testdata", "TestCount", "another.txt"),
+		filepath.Join("testdata", "TestCount", "onemore.txt"),
+		filepath.Join("testdata", "TestCount", "dir"),
 	}
 
 	results, err := count.All(files)
@@ -117,32 +125,33 @@ func TestCountAll(t *testing.T) {
 
 	want := count.Results{
 		{
-			Name:  "testdata/another.txt",
+			Name:  "testdata/TestCount/another.txt",
 			Bytes: 608,
 			Chars: 608,
 			Lines: 2,
 			Words: 80,
 		},
 		{
-			Name:  "testdata/onemore.txt",
-			Bytes: 460,
-			Chars: 460,
-			Lines: 2,
-			Words: 63,
-		},
-		{
-			Name:  "testdata/moby_dick.txt",
+			Name:  "testdata/TestCount/moby_dick.txt",
 			Bytes: 1232922,
 			Chars: 1232922,
 			Lines: 23243,
 			Words: 214132,
 		},
+		{
+			Name:  "testdata/TestCount/onemore.txt",
+			Bytes: 460,
+			Chars: 460,
+			Lines: 2,
+			Words: 63,
+		},
 	}
 
-	sort.Stable(ByName(results))
-	sort.Stable(ByName(want))
+	// Sort them before comparison as order doesn't matter
+	slices.SortFunc(results, cmpResult)
+	slices.SortFunc(want, cmpResult)
 
-	test.EqualFunc(t, results, want, resultsEqual)
+	test.EqualFunc(t, results, want, slices.Equal)
 }
 
 func TestDisplay(t *testing.T) {
@@ -159,9 +168,18 @@ func TestDisplay(t *testing.T) {
 	test.Ok(t, err)
 
 	got := out.String()
-	want := "File\tBytes\tChars\tLines\tWords\ntest\t128\t78926\t42\t1000\n"
+	want := filepath.Join(test.Data(t), "TestDisplay", "one.txt")
 
-	test.Equal(t, got, want)
+	if *debug {
+		fmt.Printf("\nDEBUG (TestDisplay)\n------------\n\n%s\n", got)
+	}
+
+	if *update {
+		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
+		test.Ok(t, err)
+	}
+
+	test.File(t, got, want)
 }
 
 func TestDisplayMultiple(t *testing.T) {
@@ -194,9 +212,18 @@ func TestDisplayMultiple(t *testing.T) {
 	test.Ok(t, err)
 
 	got := out.String()
-	want := "File\tBytes\tChars\tLines\tWords\none\t128\t78926\t42\t1000\ntwo\t128\t78926\t42\t1000\nthree\t128\t78926\t42\t1000\n"
+	want := filepath.Join(test.Data(t), "TestDisplay", "all.txt")
 
-	test.Equal(t, got, want)
+	if *debug {
+		fmt.Printf("\nDEBUG (TestDisplayMultiple)\n------------\n\n%s\n", got)
+	}
+
+	if *update {
+		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
+		test.Ok(t, err)
+	}
+
+	test.File(t, got, want)
 }
 
 func TestDisplayJSON(t *testing.T) {
@@ -212,10 +239,19 @@ func TestDisplayJSON(t *testing.T) {
 	err := count.Display(out, true)
 	test.Ok(t, err)
 
-	got := strings.TrimSpace(out.String())
-	want := `{"name":"test","lines":42,"bytes":128,"words":1000,"chars":78926}`
+	got := out.String()
+	want := filepath.Join(test.Data(t), "TestDisplay", "one.json")
 
-	test.Equal(t, got, want)
+	if *debug {
+		fmt.Printf("\nDEBUG (TestDisplayJSON)\n------------\n\n%s\n", got)
+	}
+
+	if *update {
+		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
+		test.Ok(t, err)
+	}
+
+	test.File(t, got, want)
 }
 
 func TestDisplayJSONMultiple(t *testing.T) {
@@ -247,10 +283,19 @@ func TestDisplayJSONMultiple(t *testing.T) {
 	err := counts.Display(out, true)
 	test.Ok(t, err)
 
-	got := strings.TrimSpace(out.String())
-	want := `[{"name":"one","lines":42,"bytes":128,"words":1000,"chars":78926},{"name":"two","lines":42,"bytes":128,"words":1000,"chars":78926},{"name":"three","lines":42,"bytes":128,"words":1000,"chars":78926}]`
+	got := out.String()
+	want := filepath.Join(test.Data(t), "TestDisplay", "all.json")
 
-	test.Equal(t, got, want)
+	if *debug {
+		fmt.Printf("\nDEBUG (TestDisplayJSON)\n------------\n\n%s\n", got)
+	}
+
+	if *update {
+		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
+		test.Ok(t, err)
+	}
+
+	test.File(t, got, want)
 }
 
 func BenchmarkCount(b *testing.B) {
@@ -259,7 +304,7 @@ func BenchmarkCount(b *testing.B) {
 		b.Fatal(err)
 	}
 
-	mobyDick := filepath.Join(cwd, "testdata", "moby_dick.txt")
+	mobyDick := filepath.Join(cwd, "testdata", "TestCount", "moby_dick.txt")
 	contents, err := os.ReadFile(mobyDick)
 	if err != nil {
 		b.Fatalf("could not read moby dick: %v", err)
@@ -275,20 +320,7 @@ func BenchmarkCount(b *testing.B) {
 	}
 }
 
-type ByName []count.Result
-
-func (a ByName) Len() int           { return len(a) }
-func (a ByName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a ByName) Less(i, j int) bool { return a[i].Name < a[j].Name }
-
-func resultsEqual(a, b count.Results) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
+func cmpResult(a, b count.Result) int {
+	// Just compare by name
+	return cmp.Compare(a.Name, b.Name)
 }
