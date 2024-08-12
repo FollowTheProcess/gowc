@@ -36,7 +36,7 @@ tasks:
     desc: Run the test suite
     sources:
       - "**/*.go"
-    cmds: 
+    cmds:
       - go test -race ./... {{ .CLI_ARGS }}
 
   build:
@@ -55,7 +55,7 @@ tasks:
     desc: Run all project benchmarks
     sources:
       - "**/*.go"
-    cmds: 
+    cmds:
       - go test ./... -run None -benchmem -bench . {{ .CLI_ARGS }}
 
   lint:
@@ -63,7 +63,7 @@ tasks:
     sources:
       - "**/*.go"
       - .golangci.yml
-    cmds: 
+    cmds:
       - golangci-lint run --fix
     preconditions:
       - sh: command -v golangci-lint
