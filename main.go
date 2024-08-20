@@ -14,6 +14,7 @@ import (
 var (
 	version = "dev"     // gowc version number, set at compile time by ldflags
 	commit  = "unknown" // gowc commit hash, set at compile time with ldflags
+	date    = "?"       // gowc build date, set at compile time with ldflags
 )
 
 func main() {
@@ -29,6 +30,8 @@ func run(stdin io.Reader, stdout io.Writer, stderr io.Writer, args []string) err
 		"gowc",
 		cli.Short("A toy wc clone (sort of) written in Go."),
 		cli.Version(version),
+		cli.Commit(commit),
+		cli.BuildDate(date),
 		cli.Example("Use stdin", "cat myfile.txt | gowc"),
 		cli.Example("Or", "gowc < myfile.txt"),
 		cli.Example("Read from file", "gowc myfile.txt"),
@@ -40,7 +43,6 @@ func run(stdin io.Reader, stdout io.Writer, stderr io.Writer, args []string) err
 		cli.Flag(&options.json, "json", 'j', false, "Output results as JSON"),
 		cli.Allow(cli.AnyArgs()),
 		cli.Run(doCount(&options)),
-		cli.VersionFunc(displayVersion),
 	)
 	if err != nil {
 		return err
@@ -102,11 +104,6 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 			return results.Display(stdout, options.json)
 		}
 	}
-}
-
-func displayVersion(cmd *cli.Command) error {
-	fmt.Fprintf(cmd.Stderr(), "Version: %s\nCommit: %s\n", version, commit)
-	return nil
 }
 
 func cmpResult(a, b count.Result) int {
