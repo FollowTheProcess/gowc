@@ -17,6 +17,7 @@ builds:
       - -s -w
       - -X main.version={{.Version}}
       - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
     env:
       - CGO_ENABLED=0
     goos:
@@ -73,7 +74,7 @@ checksum:
   name_template: checksums.txt
 
 snapshot:
-  name_template: "{{ .Tag }}-dev{{ .ShortCommit }}"
+  version_template: "{{ .Tag }}-dev{{ .ShortCommit }}"
 
 changelog:
   # The changelog is handled by release drafter
