@@ -36,7 +36,7 @@ func run(stdin io.Reader, stdout io.Writer, stderr io.Writer, args []string) err
 		cli.Example("Or", "gowc < myfile.txt"),
 		cli.Example("Read from file", "gowc myfile.txt"),
 		cli.Example("Or many files", "gowc **/*.go"),
-		cli.Args(args),
+		cli.OverrideArgs(args),
 		cli.Stdin(stdin),
 		cli.Stdout(stdout),
 		cli.Stderr(stderr),
