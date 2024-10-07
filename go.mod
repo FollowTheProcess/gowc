@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/FollowTheProcess/cli v0.5.0
-	github.com/FollowTheProcess/test v0.15.0
+	github.com/FollowTheProcess/test v0.16.0
 )
 
 require (
