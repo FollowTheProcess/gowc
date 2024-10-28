@@ -3,7 +3,7 @@ module github.com/FollowTheProcess/gowc
 go 1.23
 
 require (
-	github.com/FollowTheProcess/cli v0.7.0
+	github.com/FollowTheProcess/cli v0.8.0
 	github.com/FollowTheProcess/test v0.16.0
 )
 
