@@ -67,7 +67,7 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 			if err != nil {
 				return err
 			}
-			if (info.Mode() & os.ModeCharDevice) != 0 {
+			if info.Size() == 0 {
 				return fmt.Errorf("nothing to read from stdin")
 			}
 
