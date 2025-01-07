@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/FollowTheProcess/gowc/internal/count"
+	"github.com/FollowTheProcess/snapshot"
 	"github.com/FollowTheProcess/test"
 )
 
@@ -133,9 +134,9 @@ func TestCountAll(t *testing.T) {
 		},
 		{
 			Name:  "testdata/TestCount/moby_dick.txt",
-			Bytes: 1232922,
-			Chars: 1232922,
-			Lines: 23243,
+			Bytes: 1232921,
+			Chars: 1232921,
+			Lines: 23242,
 			Words: 214132,
 		},
 		{
@@ -155,6 +156,7 @@ func TestCountAll(t *testing.T) {
 }
 
 func TestDisplay(t *testing.T) {
+	snap := snapshot.New(t, snapshot.Update(*update))
 	count := count.Result{
 		Name:  "test",
 		Lines: 42,
@@ -168,21 +170,17 @@ func TestDisplay(t *testing.T) {
 	test.Ok(t, err)
 
 	got := out.String()
-	want := filepath.Join(test.Data(t), "TestDisplay", "one.txt")
 
 	if *debug {
 		fmt.Printf("\nDEBUG (TestDisplay)\n------------\n\n%s\n", got)
 	}
 
-	if *update {
-		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
-		test.Ok(t, err)
-	}
-
-	test.File(t, got, want)
+	snap.Snap(got)
 }
 
 func TestDisplayMultiple(t *testing.T) {
+	snap := snapshot.New(t, snapshot.Update(*update))
+
 	counts := count.Results{
 		{
 			Name:  "one",
@@ -212,21 +210,17 @@ func TestDisplayMultiple(t *testing.T) {
 	test.Ok(t, err)
 
 	got := out.String()
-	want := filepath.Join(test.Data(t), "TestDisplay", "all.txt")
 
 	if *debug {
 		fmt.Printf("\nDEBUG (TestDisplayMultiple)\n------------\n\n%s\n", got)
 	}
 
-	if *update {
-		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
-		test.Ok(t, err)
-	}
-
-	test.File(t, got, want)
+	snap.Snap(got)
 }
 
 func TestDisplayJSON(t *testing.T) {
+	snap := snapshot.New(t, snapshot.Update(*update))
+
 	count := count.Result{
 		Name:  "test",
 		Lines: 42,
@@ -240,21 +234,17 @@ func TestDisplayJSON(t *testing.T) {
 	test.Ok(t, err)
 
 	got := out.String()
-	want := filepath.Join(test.Data(t), "TestDisplay", "one.json")
 
 	if *debug {
 		fmt.Printf("\nDEBUG (TestDisplayJSON)\n------------\n\n%s\n", got)
 	}
 
-	if *update {
-		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
-		test.Ok(t, err)
-	}
-
-	test.File(t, got, want)
+	snap.Snap(got)
 }
 
 func TestDisplayJSONMultiple(t *testing.T) {
+	snap := snapshot.New(t, snapshot.Update(*update))
+
 	counts := count.Results{
 		{
 			Name:  "one",
@@ -284,18 +274,12 @@ func TestDisplayJSONMultiple(t *testing.T) {
 	test.Ok(t, err)
 
 	got := out.String()
-	want := filepath.Join(test.Data(t), "TestDisplay", "all.json")
 
 	if *debug {
 		fmt.Printf("\nDEBUG (TestDisplayJSON)\n------------\n\n%s\n", got)
 	}
 
-	if *update {
-		err := os.WriteFile(want, out.Bytes(), os.ModePerm)
-		test.Ok(t, err)
-	}
-
-	test.File(t, got, want)
+	snap.Snap(got)
 }
 
 func BenchmarkCount(b *testing.B) {

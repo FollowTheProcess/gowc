@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/FollowTheProcess/snapshot"
 	"github.com/FollowTheProcess/test"
 )
 
@@ -17,6 +18,8 @@ var (
 )
 
 func TestCountFile(t *testing.T) {
+	snap := snapshot.New(t, snapshot.Update(*update))
+
 	mobyDick := filepath.Join("internal", "count", "testdata", "TestCount", "moby_dick.txt")
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
@@ -26,21 +29,17 @@ func TestCountFile(t *testing.T) {
 	test.Ok(t, err)
 
 	got := stdout.String()
-	want := filepath.Join("testdata", "moby_dick.golden.txt")
 
 	if *debug {
 		fmt.Printf("\nDEBUG (TestCountFile)\n------------\n\n%s\n", got)
 	}
 
-	if *update {
-		err := os.WriteFile(want, stdout.Bytes(), os.ModePerm)
-		test.Ok(t, err)
-	}
-
-	test.File(t, got, want)
+	snap.Snap(got)
 }
 
 func TestCountMany(t *testing.T) {
+	snap := snapshot.New(t, snapshot.Update(*update))
+
 	files := []string{
 		filepath.Join("internal", "count", "testdata", "TestCount", "moby_dick.txt"),
 		filepath.Join("internal", "count", "testdata", "TestCount", "another.txt"),
@@ -55,16 +54,10 @@ func TestCountMany(t *testing.T) {
 	test.Ok(t, err)
 
 	got := stdout.String()
-	want := filepath.Join("testdata", "all.golden.txt")
 
 	if *debug {
 		fmt.Printf("\nDEBUG (TestCountMany)\n------------\n\n%s\n", got)
 	}
 
-	if *update {
-		err := os.WriteFile(want, stdout.Bytes(), os.ModePerm)
-		test.Ok(t, err)
-	}
-
-	test.File(t, got, want)
+	snap.Snap(got)
 }
