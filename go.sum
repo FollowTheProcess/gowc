@@ -1,7 +1,7 @@
 github.com/FollowTheProcess/cli v0.10.0 h1:C0NXCevm9B93xB4eWRqW3jALnhF+04Ag7oCH2re8iaQ=
 github.com/FollowTheProcess/cli v0.10.0/go.mod h1:p3rImroDhYdrZXFRs8MUc2MHmEIWmegZGly7b3M3jL0=
-github.com/FollowTheProcess/snapshot v0.2.0 h1:9pJ50rK5LCX1n6PSrCDZWlM0+m2fh3RUTAjfdVam0/A=
-github.com/FollowTheProcess/snapshot v0.2.0/go.mod h1:TM4sJgVLQHuQi+zCNrTUYxw2WtiSHdzLycVO8ix4AZ4=
+github.com/FollowTheProcess/snapshot v0.3.0 h1:LpTQCtuT0dTeWi2HhmHgHu17TtZlRPMBGtOzlQfh9HY=
+github.com/FollowTheProcess/snapshot v0.3.0/go.mod h1:ADH1yxxSZgDhTH5hUe+g0gB+ZQ/TGELfPHTw853qJjw=
 github.com/FollowTheProcess/test v0.19.2 h1:lxcW6PZX+a6QvgHfaR71kaowpaHi7uIna8aZStLZhQk=
 github.com/FollowTheProcess/test v0.19.2/go.mod h1:lRQGHFDEY+V2bnJkKktAE088s7L8L1qdNjZexqWInXI=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
