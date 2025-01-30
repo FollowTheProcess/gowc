@@ -37,8 +37,8 @@ var (
 
 func TestCount(t *testing.T) {
 	tests := []struct {
-		name string
 		in   io.Reader
+		name string
 		want count.Result
 	}{
 		{
@@ -105,9 +105,9 @@ func TestCount(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := count.One(tt.in, "")
+			got := count.One(tt.in, "")
 
-			test.Ok(t, err)
+			test.Ok(t, got.Err)
 			test.Equal(t, got, tt.want)
 		})
 	}
@@ -121,8 +121,10 @@ func TestCountAll(t *testing.T) {
 		filepath.Join("testdata", "TestCount", "dir"),
 	}
 
-	results, err := count.All(files)
-	test.Ok(t, err)
+	results := count.All(files)
+	for _, result := range results {
+		test.Ok(t, result.Err)
+	}
 
 	want := count.Results{
 		{
@@ -297,7 +299,7 @@ func BenchmarkCount(b *testing.B) {
 
 	b.ResetTimer()
 	for range b.N {
-		_, err := count.One(r, "bench")
+		_ = count.One(r, "bench")
 		if err != nil {
 			b.Fatalf("Count returned an error: %v", err)
 		}

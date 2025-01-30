@@ -31,6 +31,7 @@ type (
 
 // Result encodes the result of a counting operation on a file.
 type Result struct {
+	Err   error  `json:"-"`
 	Name  string `json:"name"`
 	Lines Lines  `json:"lines"`
 	Bytes Bytes  `json:"bytes"`
@@ -72,7 +73,7 @@ func (r Results) Display(w io.Writer, toJSON bool) error {
 }
 
 // One performs a counting operation on a single reader, returning the result and any error.
-func One(in io.Reader, name string) (Result, error) {
+func One(in io.Reader, name string) Result {
 	var (
 		lc Lines
 		bc Bytes
@@ -84,7 +85,7 @@ func One(in io.Reader, name string) (Result, error) {
 
 	_, err := io.Copy(multi, in)
 	if err != nil {
-		return Result{}, err
+		return Result{Err: err}
 	}
 
 	return Result{
@@ -93,12 +94,12 @@ func One(in io.Reader, name string) (Result, error) {
 		Bytes: bc,
 		Words: wc,
 		Chars: cc,
-	}, nil
+	}
 }
 
 // All performs counting operations on multiple files concurrently
 // gathering up the results and returning.
-func All(files []string) (Results, error) {
+func All(files []string) Results {
 	jobs := make(chan string)
 	counts := make(chan Result)
 
@@ -139,7 +140,7 @@ func All(files []string) (Results, error) {
 		results = append(results, count)
 	}
 
-	return results, nil
+	return results
 }
 
 // worker is a concurrent worker contributing to counting in files,
@@ -151,7 +152,8 @@ func worker(counts chan<- Result, files <-chan string, wg *sync.WaitGroup) {
 	for file := range files {
 		info, err := os.Stat(file)
 		if err != nil {
-			panic(err) // TODO: Not this
+			counts <- Result{Err: err}
+			return
 		}
 		if info.IsDir() {
 			// Skip directories
@@ -160,17 +162,10 @@ func worker(counts chan<- Result, files <-chan string, wg *sync.WaitGroup) {
 
 		f, err := os.Open(file)
 		if err != nil {
-			// If we can't open the file, just close it and move on
-			// TODO: Handle this better
-			f.Close()
-			continue
+			counts <- Result{Err: err}
+			return
 		}
-		result, err := One(f, file)
-		if err != nil {
-			// Same as above
-			f.Close()
-			continue
-		}
+		result := One(f, file)
 		f.Close()
 		counts <- result
 	}

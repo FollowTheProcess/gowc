@@ -6,15 +6,16 @@ import (
 	"io"
 	"os"
 	"slices"
+	"time"
 
 	"github.com/FollowTheProcess/cli"
 	"github.com/FollowTheProcess/gowc/internal/count"
 )
 
 var (
-	version = "dev"     // gowc version number, set at compile time by ldflags
-	commit  = "unknown" // gowc commit hash, set at compile time with ldflags
-	date    = "?"       // gowc build date, set at compile time with ldflags
+	version = "dev" // gowc version number, set at compile time by ldflags
+	commit  = ""    // gowc commit hash, set at compile time with ldflags
+	date    = ""    // gowc build date, set at compile time with ldflags
 )
 
 func main() {
@@ -58,6 +59,7 @@ type countOptions struct {
 
 func doCount(options *countOptions) func(cmd *cli.Command, args []string) error {
 	return func(cmd *cli.Command, args []string) error {
+		start := time.Now()
 		stdout := cmd.Stdout()
 		switch len(args) {
 		case 0:
@@ -71,12 +73,13 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 				return fmt.Errorf("nothing to read from stdin")
 			}
 
-			result, err := count.One(fd, "stdin")
-			if err != nil {
+			result := count.One(fd, "stdin")
+			if result.Err != nil {
+				return result.Err
+			}
+			if err := result.Display(stdout, options.json); err != nil {
 				return err
 			}
-			return result.Display(stdout, options.json)
-
 		case 1:
 			// Read from the file
 			path := args[0]
@@ -86,23 +89,32 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 			}
 			defer file.Close()
 
-			result, err := count.One(file, path)
-			if err != nil {
+			result := count.One(file, path)
+			if result.Err != nil {
+				return result.Err
+			}
+			if err := result.Display(stdout, options.json); err != nil {
 				return err
 			}
-			return result.Display(stdout, options.json)
 
 		default:
 			// Count many files
-			results, err := count.All(args)
-			if err != nil {
-				return err
+			results := count.All(args)
+			for _, result := range results {
+				if result.Err != nil {
+					return result.Err
+				}
 			}
 			// Sort the results by name so it's deterministic
 			slices.SortFunc(results, cmpResult)
 
-			return results.Display(stdout, options.json)
+			if err := results.Display(stdout, options.json); err != nil {
+				return err
+			}
 		}
+
+		fmt.Fprintf(cmd.Stderr(), "\ntook %v\n", time.Since(start))
+		return nil
 	}
 }
 

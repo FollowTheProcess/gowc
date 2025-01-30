@@ -40,7 +40,7 @@ func TestCountFile(t *testing.T) {
 func TestCountMany(t *testing.T) {
 	snap := snapshot.New(t, snapshot.Update(*update))
 
-	files := []string{
+	args := []string{
 		filepath.Join("internal", "count", "testdata", "TestCount", "moby_dick.txt"),
 		filepath.Join("internal", "count", "testdata", "TestCount", "another.txt"),
 		filepath.Join("internal", "count", "testdata", "TestCount", "onemore.txt"),
@@ -48,7 +48,6 @@ func TestCountMany(t *testing.T) {
 	}
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
-	args := files
 
 	err := run(os.Stdin, stdout, stderr, args)
 	test.Ok(t, err)
