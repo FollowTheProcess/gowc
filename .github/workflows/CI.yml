@@ -18,3 +18,5 @@ jobs:
     permissions:
       contents: read
     uses: FollowTheProcess/ci/.github/workflows/Go.yml@v1
+    with:
+      matrix-os: '["ubuntu-latest", "macos-latest"]' # Sorry no Windows
