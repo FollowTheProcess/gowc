@@ -67,7 +67,15 @@ func (r Results) Display(w io.Writer, toJSON bool) error {
 	tab := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, flags)
 	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
 	for _, result := range r {
-		fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", result.Name, result.Bytes, result.Chars, result.Lines, result.Words)
+		fmt.Fprintf(
+			tab,
+			"%s\t%d\t%d\t%d\t%d\n",
+			result.Name,
+			result.Bytes,
+			result.Chars,
+			result.Lines,
+			result.Words,
+		)
 	}
 	return tab.Flush()
 }
@@ -166,7 +174,11 @@ func worker(counts chan<- Result, files <-chan string, wg *sync.WaitGroup) {
 			return
 		}
 		result := One(f, file)
-		f.Close()
+		err = f.Close()
+		if err != nil {
+			counts <- Result{Err: err}
+			return
+		}
 		counts <- result
 	}
 }
