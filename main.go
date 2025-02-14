@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -25,7 +26,7 @@ func main() {
 	}
 }
 
-func run(stdin io.Reader, stdout io.Writer, stderr io.Writer, args []string) error {
+func run(stdin io.Reader, stdout, stderr io.Writer, args []string) error {
 	var options countOptions
 	cmd, err := cli.New(
 		"gowc",
@@ -57,7 +58,9 @@ type countOptions struct {
 	json bool // Format results as JSON
 }
 
-func doCount(options *countOptions) func(cmd *cli.Command, args []string) error {
+func doCount( //nolint: gocognit // This is fine really, it's pretty clear
+	options *countOptions,
+) func(cmd *cli.Command, args []string) error {
 	return func(cmd *cli.Command, args []string) error {
 		start := time.Now()
 		stdout := cmd.Stdout()
@@ -70,7 +73,7 @@ func doCount(options *countOptions) func(cmd *cli.Command, args []string) error 
 				return err
 			}
 			if info.Size() == 0 {
-				return fmt.Errorf("nothing to read from stdin")
+				return errors.New("nothing to read from stdin")
 			}
 
 			result := count.One(fd, "stdin")

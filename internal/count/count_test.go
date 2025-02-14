@@ -297,8 +297,7 @@ func BenchmarkCount(b *testing.B) {
 	}
 	r := bytes.NewReader(contents)
 
-	b.ResetTimer()
-	for range b.N {
+	for b.Loop() {
 		_ = count.One(r, "bench")
 		if err != nil {
 			b.Fatalf("Count returned an error: %v", err)
