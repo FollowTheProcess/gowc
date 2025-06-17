@@ -30,23 +30,26 @@ builds:
     goarm:
       - "7"
 
-brews:
-  - repository:
-      owner: FollowTheProcess
-      name: homebrew-tap
-      token: "{{.Env.HOMEBREW_TAP_TOKEN}}"
-    goarm: "7"
-    directory: Formula
+homebrew_casks:
+  - name: gowc
+    binary: gowc
+    directory: Casks
+    description: Implementation of wc in Go
+    homepage: https://github.com/FollowTheProcess/gowc
+    conflicts:
+      - formula: gowc
     commit_author:
       name: Tom Fleet
-      email: tomfleet2018@gmail.com
-    homepage: https://github.com/FollowTheProcess/gowc
-    description: Implementation of wc in Go
-    license: MIT License
-    install: |
-      bin.install "gowc"
-    test: |
-      "#{bin}/gowc --version"
+      email: me@followtheprocess.codes
+    repository:
+      owner: FollowTheProcess
+      name: homebrew-tap
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/gowc"]
+          end
 
 archives:
   - id: gowc
