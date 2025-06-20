@@ -9,8 +9,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/FollowTheProcess/cli"
-	"github.com/FollowTheProcess/gowc/internal/count"
+	"go.followtheprocess.codes/cli"
+	"go.followtheprocess.codes/gowc/internal/count"
 )
 
 var (

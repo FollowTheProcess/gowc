@@ -25,7 +25,7 @@ So this was a fun experiment to see how far you can take it.
 Compiled binaries for all supported platforms can be found in the [GitHub release]. There is also a [homebrew] tap:
 
 ```shell
-brew install FollowTheProcess/homebrew-tap/gowc
+brew install --cask FollowTheProcess/homebrew-tap/gowc
 ```
 
 ## Quickstart

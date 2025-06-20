@@ -12,9 +12,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/FollowTheProcess/gowc/internal/count"
-	"github.com/FollowTheProcess/snapshot"
-	"github.com/FollowTheProcess/test"
+	"go.followtheprocess.codes/gowc/internal/count"
+	"go.followtheprocess.codes/snapshot"
+	"go.followtheprocess.codes/test"
 )
 
 const someText = `
