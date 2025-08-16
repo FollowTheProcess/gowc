@@ -1,6 +1,6 @@
 module go.followtheprocess.codes/gowc
 
-go 1.24
+go 1.25.0
 
 require (
 	go.followtheprocess.codes/cli v0.14.0
