@@ -36,8 +36,6 @@ homebrew_casks:
     directory: Casks
     description: Implementation of wc in Go
     homepage: https://github.com/FollowTheProcess/gowc
-    conflicts:
-      - formula: gowc
     commit_author:
       name: Tom Fleet
       email: me@followtheprocess.codes
