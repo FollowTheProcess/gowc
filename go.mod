@@ -4,7 +4,7 @@ go 1.25
 
 require (
 	go.followtheprocess.codes/cli v0.14.0
-	go.followtheprocess.codes/snapshot v0.6.0
+	go.followtheprocess.codes/snapshot v0.6.1
 	go.followtheprocess.codes/test v0.23.1
 )
 
