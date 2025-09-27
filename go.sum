@@ -1,5 +1,5 @@
-go.followtheprocess.codes/cli v0.14.0 h1:33fRfsEgbZQHxwualsbSa9DmIrmbsUmw2KnoRhNjIsU=
-go.followtheprocess.codes/cli v0.14.0/go.mod h1:puT021y9W1Mnq7EiTwnqOABBLr4hqknZIe9g843nUu8=
+go.followtheprocess.codes/cli v0.14.1 h1:QM94fqvRmNzB1Qlt6o4g/D0GqK20YfaN3YiBbefBccE=
+go.followtheprocess.codes/cli v0.14.1/go.mod h1:dGHHMkgiIuVKnY6ZK9ajbvcbjUVnX51ny8SCUVXtf4c=
 go.followtheprocess.codes/hue v0.7.0 h1:6HaZTGc4NYVnqqjYZTTBcVYRKb8MyfPe5yBHJiBfekg=
 go.followtheprocess.codes/hue v0.7.0/go.mod h1:gSn5xK6KJapih+eFgQk3woo1qg3/rx9XSrAanUIuDr8=
 go.followtheprocess.codes/snapshot v0.6.1 h1:cZkQtEjL21BSrHn98Lm0S4yTzcOje/K60Iog/u/A5tM=
