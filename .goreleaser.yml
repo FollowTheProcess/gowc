@@ -32,7 +32,8 @@ builds:
 
 homebrew_casks:
   - name: gowc
-    binary: gowc
+    binaries:
+      - gowc
     directory: Casks
     description: Implementation of wc in Go
     homepage: https://github.com/FollowTheProcess/gowc
