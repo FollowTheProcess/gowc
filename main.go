@@ -43,7 +43,6 @@ func run(stdin io.Reader, stdout, stderr io.Writer, args []string) error {
 		cli.Stdout(stdout),
 		cli.Stderr(stderr),
 		cli.Flag(&options.json, "json", 'j', false, "Output results as JSON"),
-		cli.Allow(cli.AnyArgs()),
 		cli.Run(doCount(&options)),
 	)
 	if err != nil {
@@ -60,10 +59,12 @@ type countOptions struct {
 
 func doCount( //nolint: gocognit // This is fine really, it's pretty clear
 	options *countOptions,
-) func(cmd *cli.Command, args []string) error {
-	return func(cmd *cli.Command, args []string) error {
+) func(cmd *cli.Command) error {
+	return func(cmd *cli.Command) error {
 		start := time.Now()
 		stdout := cmd.Stdout()
+		args := cmd.Args()
+
 		switch len(args) {
 		case 0:
 			// Read from stdin

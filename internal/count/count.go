@@ -5,8 +5,10 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"runtime"
 	"sync"
@@ -158,29 +160,36 @@ func All(files []string) Results {
 func worker(counts chan<- Result, files <-chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for file := range files {
-		info, err := os.Stat(file)
-		if err != nil {
-			counts <- Result{Err: err}
-			return
-		}
-		if info.IsDir() {
-			// Skip directories
+		result := countFile(file)
+
+		// Signal to skip directories
+		if errors.Is(result.Err, fs.SkipDir) {
 			continue
 		}
 
-		f, err := os.Open(file)
-		if err != nil {
-			counts <- Result{Err: err}
-			return
-		}
-		result := One(f, file)
-		err = f.Close()
-		if err != nil {
-			counts <- Result{Err: err}
-			return
-		}
 		counts <- result
 	}
+}
+
+// countFile counts a single file.
+func countFile(file string) Result {
+	info, err := os.Stat(file)
+	if err != nil {
+		return Result{Err: err}
+	}
+
+	if info.IsDir() {
+		// Skip directories
+		return Result{Err: fs.SkipDir}
+	}
+
+	f, err := os.Open(file)
+	if err != nil {
+		return Result{Err: err}
+	}
+	defer f.Close()
+
+	return One(f, file)
 }
 
 // Write implements [io.Writer] for Lines.
