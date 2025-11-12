@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -20,13 +21,14 @@ var (
 )
 
 func main() {
-	if err := run(os.Stdin, os.Stdout, os.Stderr, os.Args[1:]); err != nil {
+	ctx := context.Background()
+	if err := run(ctx, os.Stdin, os.Stdout, os.Stderr, os.Args[1:]); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(stdin io.Reader, stdout, stderr io.Writer, args []string) error {
+func run(ctx context.Context, stdin io.Reader, stdout, stderr io.Writer, args []string) error {
 	var options countOptions
 	cmd, err := cli.New(
 		"gowc",
@@ -42,14 +44,14 @@ func run(stdin io.Reader, stdout, stderr io.Writer, args []string) error {
 		cli.Stdin(stdin),
 		cli.Stdout(stdout),
 		cli.Stderr(stderr),
-		cli.Flag(&options.json, "json", 'j', false, "Output results as JSON"),
-		cli.Run(doCount(&options)),
+		cli.Flag(&options.json, "json", 'j', "Output results as JSON"),
+		cli.Run(doCount(ctx, &options)),
 	)
 	if err != nil {
 		return err
 	}
 
-	return cmd.Execute()
+	return cmd.Execute(ctx)
 }
 
 // countOptions are options passed for a count operation.
@@ -58,9 +60,10 @@ type countOptions struct {
 }
 
 func doCount( //nolint: gocognit // This is fine really, it's pretty clear
+	ctx context.Context,
 	options *countOptions,
-) func(cmd *cli.Command) error {
-	return func(cmd *cli.Command) error {
+) func(ctx context.Context, cmd *cli.Command) error {
+	return func(ctx context.Context, cmd *cli.Command) error {
 		start := time.Now()
 		stdout := cmd.Stdout()
 		args := cmd.Args()

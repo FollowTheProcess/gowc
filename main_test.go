@@ -25,7 +25,7 @@ func TestCountFile(t *testing.T) {
 	stderr := &bytes.Buffer{}
 	args := []string{mobyDick}
 
-	err := run(os.Stdin, stdout, stderr, args)
+	err := run(t.Context(), os.Stdin, stdout, stderr, args)
 	test.Ok(t, err)
 
 	got := stdout.String()
@@ -49,7 +49,7 @@ func TestCountMany(t *testing.T) {
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 
-	err := run(os.Stdin, stdout, stderr, args)
+	err := run(t.Context(), os.Stdin, stdout, stderr, args)
 	test.Ok(t, err)
 
 	got := stdout.String()
