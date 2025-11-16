@@ -2,8 +2,8 @@ go.followtheprocess.codes/cli v0.18.0 h1:lOf/ENPGmkIy+gaSQjde2/KF76rVWSZs6OWh0b9
 go.followtheprocess.codes/cli v0.18.0/go.mod h1:ne10OqfFoZgMX2Q6XDrd25qHKqD2iPVQqQubniRdfBk=
 go.followtheprocess.codes/hue v1.0.0 h1:0fYXAGR1o+w7Vja+Q+iVtqeEP3/CE6ET/pniyl8e9yo=
 go.followtheprocess.codes/hue v1.0.0/go.mod h1:gSn5xK6KJapih+eFgQk3woo1qg3/rx9XSrAanUIuDr8=
-go.followtheprocess.codes/snapshot v0.7.0 h1:tzlaJN2JRdfZail13NxinSr4hx3xjBRr1zKSnHiwB2w=
-go.followtheprocess.codes/snapshot v0.7.0/go.mod h1:3CCSAEz+nbity6iZ9eWid9zLtIqFG7PE3DLhWGHLdIU=
+go.followtheprocess.codes/snapshot v0.9.0 h1:7M6AkOL/3KFJ9e8epgwwIg+3aGnNPCHMX4/IOpbA2bw=
+go.followtheprocess.codes/snapshot v0.9.0/go.mod h1:3CCSAEz+nbity6iZ9eWid9zLtIqFG7PE3DLhWGHLdIU=
 go.followtheprocess.codes/test v1.0.0 h1:5m2MPOQpohDC9pf5hgqpH+4ldJP5g+YFVdoGQY41aeU=
 go.followtheprocess.codes/test v1.0.0/go.mod h1:e627pR8IhsTV/RfuP/WKYjyL0BmuIbmaw2iKlQBCWrY=
 go.yaml.in/yaml/v4 v4.0.0-rc.3 h1:3h1fjsh1CTAPjW7q/EMe+C8shx5d8ctzZTrLcs/j8Go=
