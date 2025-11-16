@@ -1,0 +1,8 @@
+source: count_test.go
+expression: got
+---
+|
+  File   Bytes  Chars  Lines  Words
+  one    128    78926  42     1000
+  two    128    78926  42     1000
+  three  128    78926  42     1000

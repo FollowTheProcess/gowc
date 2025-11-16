@@ -1,2 +1,0 @@
-File  Bytes  Chars  Lines  Words
-test  128    78926  42     1000

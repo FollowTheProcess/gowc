@@ -1,0 +1,5 @@
+source: count_test.go
+expression: got
+---
+|
+  {"name":"test","lines":42,"bytes":128,"words":1000,"chars":78926}
