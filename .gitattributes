@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Force LF even on windows for testdata, means comparisons don't fail just
+# because of line endings
+**/testdata/**/*.snap text eol=lf
