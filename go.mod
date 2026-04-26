@@ -3,7 +3,7 @@ module go.followtheprocess.codes/gowc
 go 1.26
 
 require (
-	go.followtheprocess.codes/cli v0.20.0
+	go.followtheprocess.codes/cli v0.20.1
 	go.followtheprocess.codes/snapshot v0.10.1
 	go.followtheprocess.codes/test v1.4.0
 )
