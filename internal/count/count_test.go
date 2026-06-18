@@ -291,10 +291,12 @@ func BenchmarkCount(b *testing.B) {
 	}
 
 	mobyDick := filepath.Join(cwd, "testdata", "TestCount", "moby_dick.txt")
+
 	contents, err := os.ReadFile(mobyDick)
 	if err != nil {
 		b.Fatalf("could not read moby dick: %v", err)
 	}
+
 	r := bytes.NewReader(contents)
 
 	for b.Loop() {

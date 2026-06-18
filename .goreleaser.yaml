@@ -7,9 +7,7 @@ before:
     - go mod tidy
 
 builds:
-  - id: gowc
-    dir: "."
-    main: "."
+  - main: "."
     binary: gowc
     flags:
       - -trimpath
@@ -30,10 +28,19 @@ builds:
     goarm:
       - "7"
 
+blobs:
+  - provider: s3
+    region: eu-west-2
+    bucket: get.followtheprocess.codes
+    directory: "{{ .ProjectName }}/{{ .Version }}"
+
 homebrew_casks:
   - name: gowc
     binaries:
       - gowc
+    url:
+      template: "https://get.followtheprocess.codes/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}"
+      verified: github.com/FollowTheProcess/gowc
     directory: Casks
     description: Implementation of wc in Go
     homepage: https://github.com/FollowTheProcess/gowc
@@ -51,9 +58,25 @@ homebrew_casks:
             system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/gowc"]
           end
 
+dockers_v2:
+  - images:
+      - followtheprocess/gowc
+      - ghcr.io/followtheprocess/gowc
+    tags:
+      - "{{ .Version }}"
+    labels:
+      "org.opencontainers.image.description": "Implementation of wc in Go"
+      "org.opencontainers.image.created": "{{.CommitDate}}"
+      "org.opencontainers.image.name": "{{.ProjectName}}"
+      "org.opencontainers.image.revision": "{{.FullCommit}}"
+      "org.opencontainers.image.version": "{{.Version}}"
+      "org.opencontainers.image.source": "{{.GitURL}}"
+
+docker_digest:
+  name_template: digests.txt
+
 archives:
-  - id: gowc
-    name_template: >-
+  - name_template: >-
       {{ .ProjectName }}-
       {{- .Version }}-
       {{- .Os }}-
@@ -62,8 +85,7 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
 
 sboms:
-  - id: gowc
-    artifacts: archive
+  - artifacts: archive
     documents:
       - >-
         {{ .ProjectName }}-

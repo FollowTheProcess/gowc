@@ -30,6 +30,7 @@ func main() {
 
 func run(ctx context.Context, stdin io.Reader, stdout, stderr io.Writer, args []string) error {
 	var options countOptions
+
 	cmd, err := cli.New(
 		"gowc",
 		cli.Short("A toy wc clone (sort of) written in Go."),
@@ -72,10 +73,12 @@ func doCount( //nolint: gocognit // This is fine really, it's pretty clear
 		case 0:
 			// Read from stdin
 			fd := os.Stdin
+
 			info, err := fd.Stat()
 			if err != nil {
 				return err
 			}
+
 			if info.Size() == 0 {
 				return errors.New("nothing to read from stdin")
 			}
@@ -84,12 +87,14 @@ func doCount( //nolint: gocognit // This is fine really, it's pretty clear
 			if result.Err != nil {
 				return result.Err
 			}
+
 			if err := result.Display(stdout, options.json); err != nil {
 				return err
 			}
 		case 1:
 			// Read from the file
 			path := args[0]
+
 			file, err := os.Open(path)
 			if err != nil {
 				return fmt.Errorf("could not open %s: %w", path, err)
@@ -100,6 +105,7 @@ func doCount( //nolint: gocognit // This is fine really, it's pretty clear
 			if result.Err != nil {
 				return result.Err
 			}
+
 			if err := result.Display(stdout, options.json); err != nil {
 				return err
 			}
@@ -121,6 +127,7 @@ func doCount( //nolint: gocognit // This is fine really, it's pretty clear
 		}
 
 		fmt.Fprintf(cmd.Stderr(), "\ntook %v\n", time.Since(start))
+
 		return nil
 	}
 }

@@ -47,11 +47,14 @@ func (r Result) Display(w io.Writer, toJSON bool) error {
 		if err := json.NewEncoder(w).Encode(r); err != nil {
 			return fmt.Errorf("failed to serialise JSON: %w", err)
 		}
+
 		return nil
 	}
+
 	tab := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, flags)
 	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
 	fmt.Fprintf(tab, "%s\t%d\t%d\t%d\t%d\n", r.Name, r.Bytes, r.Chars, r.Lines, r.Words)
+
 	return tab.Flush()
 }
 
@@ -64,10 +67,13 @@ func (r Results) Display(w io.Writer, toJSON bool) error {
 		if err := json.NewEncoder(w).Encode(r); err != nil {
 			return fmt.Errorf("failed to serialise JSON: %w", err)
 		}
+
 		return nil
 	}
+
 	tab := tabwriter.NewWriter(w, minWidth, tabWidth, padding, padChar, flags)
 	fmt.Fprintln(tab, "File\tBytes\tChars\tLines\tWords")
+
 	for _, result := range r {
 		fmt.Fprintf(
 			tab,
@@ -79,6 +85,7 @@ func (r Results) Display(w io.Writer, toJSON bool) error {
 			result.Words,
 		)
 	}
+
 	return tab.Flush()
 }
 
@@ -132,6 +139,7 @@ func All(files []string) Results {
 		for _, file := range files {
 			jobs <- file
 		}
+
 		close(jobs)
 	}()
 
@@ -159,6 +167,7 @@ func All(files []string) Results {
 // so we can be sure all workers have finished before closing the counts channel.
 func worker(counts chan<- Result, files <-chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
+
 	for file := range files {
 		result := countFile(file)
 
@@ -203,6 +212,7 @@ func (l *Lines) Write(data []byte) (int, error) {
 			*l++
 		}
 	}
+
 	return len(data), nil
 }
 
@@ -215,6 +225,7 @@ func (b *Bytes) Write(data []byte) (int, error) {
 	for range data {
 		*b++
 	}
+
 	return len(data), nil
 }
 
@@ -226,9 +237,11 @@ func (b *Bytes) Write(data []byte) (int, error) {
 func (w *Words) Write(data []byte) (int, error) {
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	scanner.Split(bufio.ScanWords)
+
 	for scanner.Scan() {
 		*w++
 	}
+
 	return len(data), nil
 }
 
@@ -240,8 +253,10 @@ func (w *Words) Write(data []byte) (int, error) {
 func (c *Chars) Write(data []byte) (int, error) {
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 	scanner.Split(bufio.ScanRunes)
+
 	for scanner.Scan() {
 		*c++
 	}
+
 	return len(data), nil
 }
