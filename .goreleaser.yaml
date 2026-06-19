@@ -32,7 +32,7 @@ blobs:
   - provider: s3
     region: eu-west-2
     bucket: get.followtheprocess.codes
-    directory: "{{ .ProjectName }}/{{ .Version }}"
+    directory: "{{ .ProjectName }}/v{{ .Version }}"
 
 homebrew_casks:
   - name: gowc
