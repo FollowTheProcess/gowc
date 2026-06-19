@@ -39,7 +39,7 @@ homebrew_casks:
     binaries:
       - gowc
     url:
-      template: "https://get.followtheprocess.codes/{{ .ProjectName }}/{{ .Version }}/{{ .ArtifactName }}"
+      template: "https://get.followtheprocess.codes/{{ .ProjectName }}/v{{ .Version }}/{{ .ArtifactName }}"
       verified: github.com/FollowTheProcess/gowc
     directory: Casks
     description: Implementation of wc in Go
