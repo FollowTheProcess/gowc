@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	go.followtheprocess.codes/cli v0.21.1
-	go.followtheprocess.codes/snapshot v1.0.0
+	go.followtheprocess.codes/snapshot v1.1.0
 	go.followtheprocess.codes/test v1.4.0
 )
 
